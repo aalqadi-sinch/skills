@@ -17,6 +17,7 @@ These skills can also be installed via the [Sinch Plugins](https://github.com/si
 | `sinch-authentication` | 1.3.0 | Core | Sinch API auth setup (OAuth2, API keys, dashboard links) |
 | `sinch-sdks` | 1.2.0 | Core | SDK installation and client initialization (Node.js, Python, Java, .NET) |
 | `sinch-conversation-api` | 2.1.0 | Messaging | Omnichannel messaging API layer — apps, contacts, message types, templates, batch sending, and webhooks |
+| `sinch-onboarding` | 1.0.0 | Onboarding | Phase-by-phase onboarding from free trial to a live sender, driven by launcher prompts for Claude Code and Lovable (SMS US and global) |
 | `sinch-sms` | 1.2.0 | Messaging | SMS channel of the Conversation API — sender IDs, encoding, message parts, opt-out handling |
 | `sinch-mms` | 1.2.0 | Messaging | MMS channel of the Conversation API — media messages to US/CA/AU numbers |
 | `sinch-rcs` | 1.2.0 | Messaging | RCS channel of the Conversation API — rich cards, carousels, suggested actions, SMS fallback |

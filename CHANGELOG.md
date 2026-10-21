@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. Individual skills have their own versions in metadata.
 
+## 2026-10-16
+
+### Added
+
+- `sinch-onboarding` v1.0.0 — Phase-by-phase onboarding from free trial to a live sender. A short launcher prompt supplies the user's account data and points to an agent entry file (`references/agents/claude-code.md`, `references/agents/lovable.md`); `references/inputs.md` defines the variables and how to resolve missing ones; product/region guides (`references/sms/us.md`, `references/sms/global.md`) hold the phases and checkpoints shared by every agent.
+
+### Fixed
+
+- `scripts/validate_sinch_skills.py` — Skill-count tripwire raised from 28 to 29 to include `sinch-onboarding`.
+
 ## 2026-09-23
 
 ### Changed

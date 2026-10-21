@@ -22,6 +22,7 @@ Load the smallest set of skills that owns the behavior. Start with the product s
 |------|-----------|
 | Credentials, OAuth2, Basic auth, application signing, API keys | `sinch-authentication` |
 | Install or initialize an official Sinch SDK (Node.js, Python, Java, .NET) | `sinch-sdks` |
+| New to Sinch, free trial, first message to go-live, launcher prompts for Claude Code or Lovable | `sinch-onboarding` |
 | Send or receive SMS | `sinch-sms` |
 | Send MMS (US, CA, AU) | `sinch-mms` |
 | Send RCS rich messages | `sinch-rcs` |
