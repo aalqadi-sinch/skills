@@ -13,32 +13,51 @@ Two path rules, in every onboarding file:
 
 Find the skill root before anything else. Try these in order and stop at the first that works:
 
-1. **Load the skill.** If the launcher names the `sinch-onboarding` skill and your client has a skill tool, invoke it, and use the base directory the loader reports.
+1. **Load the skill.** If the launcher names the `sinch-onboarding` skill, by name or by URL, and your skill tool lists it, invoke it, and use the base directory the loader reports.
 2. **You know this file's path.** The skill root is two folders above it, provided the path still ends in `references/agents/claude-code.md`.
 3. **Search the install locations.** In the working directory, then in the home directory, look for `sinch-onboarding/SKILL.md` under `.claude/skills/`, `.agents/skills/`, `.github/skills/`, and `agents/skills/` (no leading dot is a real convention, not a typo). Search at most three folders deep below each, for example `find .claude/skills .agents/skills .github/skills agents/skills -maxdepth 3 -path '*/sinch-onboarding/SKILL.md' 2>/dev/null`. Never scan the whole disk.
-4. **Fetch the published copy.** Read `https://raw.githubusercontent.com/sinch/skills/main/skills/sinch-onboarding/` plus the path, starting with `SKILL.md`. On a network error or a 5xx response, retry once. On a 404, do not retry: the files are not published at that address. Once a fetch works, tell the user you are reading the published version, not a local install.
+4. **Fetch the published copy.** Work out the raw base from the skill URL in the launcher: `https://github.com/<owner>/<repo>/blob/<branch>/<path>/` (or `/tree/`) becomes `https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>/`. Without a URL in the launcher, use `https://raw.githubusercontent.com/sinch/skills/main/skills/sinch-onboarding/`. Read the base plus each path, starting with `SKILL.md`. On a network error or a 5xx response, retry once. On a 404, do not retry: the files are not published at that address. Once a fetch works, tell the user you are reading the published version, not a local install.
 
-If no step works, stop before greeting the user or starting Phase 1. Tell them you could not find the `sinch-onboarding` skill, list the places you checked, and offer two ways forward: install the skills with `npx skills add sinch/skills`, or tell you where a local copy is. Do not run onboarding from memory or from this file alone.
+If no step works, stop before greeting the user or starting Phase 1. Tell them you could not find the `sinch-onboarding` skill, list the places you checked, and offer two ways forward: install the skills with `npx skills add <owner>/<repo>` (from the launcher's skill URL; `sinch/skills` when it has none), or tell you where a local copy is. Do not run onboarding from memory or from this file alone.
 
 Files this entry point needs:
 
 | File | When |
 |------|------|
+| `SKILL.md` | First: its router picks the product, region, and guide |
 | `references/inputs.md` | Before the first reply |
-| `references/{{PRODUCT}}/{{REGION}}.md` | Before the first reply. Covered: `references/sms/us.md`, and `references/sms/global.md`, which also needs `references/sms/us.md` because it reuses Phases 1–6 from it. |
+| The guide the router picks | Before the first reply. Today: `references/sms/us.md`, or `references/sms/global.md`, which also needs `references/sms/us.md` because it reuses Phases 1–6 from it. |
 | `references/shared-policy.md` | Once per conversation, before the first API call |
 
 ## Start
 
 1. Read `references/inputs.md` ([link](../inputs.md)). Map every value in the launcher prompt to its variable, and resolve missing ones in the order it gives. A value in the launcher is known: never ask for it.
-2. Load the product guide `references/{{PRODUCT}}/{{REGION}}.md` ([sms/us.md](../sms/us.md), [sms/global.md](../sms/global.md)). If no guide matches, name the missing guide and stop.
-3. Use the installed Sinch skills each phase names (`sinch-sms`, `sinch-10dlc`, `sinch-conversation-api`, …), loading each when its phase starts. If they are not installed, suggest the install and let the user run it:
+2. Route with the router in `SKILL.md` ([link](../../SKILL.md)): resolve `PRODUCT`, then `REGION`, then load the guide it names. If the product is **Planned**, follow the router's rule for planned products instead of starting Phase 1.
+3. Check which Sinch product skills are installed (see **Skills first** below). Do not ask about them yet; the first reply does.
+
+## Skills first
+
+Get every Sinch API detail through the Sinch skills, not by browsing the docs site yourself.
+
+- **Which skill:** each step in the product guide names its owner (`sinch-authentication`, `sinch-sms`, `sinch-conversation-api`, `sinch-10dlc`, `sinch-numbers-api`, …). Load that skill when its phase starts, not up front, and follow its Agent Instructions.
+- **Where the skills are:** load them with your skill tool. Without one, they sit next to this skill: the skill root's parent folder holds `sinch-sms/SKILL.md`, `sinch-10dlc/SKILL.md`, and so on.
+- **Docs only through a skill:** when a skill says to fetch a canonical page before using an endpoint, field, or enum, fetch exactly that page. Do not search developers.sinch.com, read `llms.txt`, or use a docs MCP server to find an answer a skill covers.
+- **Gaps:** only when no installed skill covers a step, tell the user which step has no skill, then use the resolution ladder in `references/shared-policy.md`: llms.txt, then first-party links, never a guessed URL.
+- **Skill vs. this guide:** when a skill and the onboarding guide disagree on an API detail, the skill (and the canonical page it links) wins. Tell the user about the conflict.
+
+**Skills missing.** If `sinch-sms` or another skill the guide needs is not installed, do not fall back to the docs silently. Ask **Install skills**, with both steps inside the question:
+
+1. Install the skills:
 
    ```bash
    npx skills add sinch/skills
    ```
 
-   When a skill does not cover something, read the docs at https://developers.sinch.com (append `.md` to any page, or start from https://developers.sinch.com/llms.txt). The optional Sinch docs MCP server is described in the [AI tools guide](https://developers.sinch.com/docs/conversation/ai-support.md).
+   When the launcher's skill URL points at another repository, such as a fork, use that `<owner>/<repo>` instead.
+
+2. Then type `/reload-skills` in Claude Code, so this session sees the new skills without a restart. You cannot run slash commands yourself; the user has to.
+
+Options: "I installed them and ran /reload-skills" | "Continue without skills (docs only)" | "I'm stuck". After the first answer, check that your skill tool now lists `sinch-sms` before continuing. If it does not, ask the user to run `/reload-skills` again or restart the session. On "Continue without skills", say once that answers will come from the docs and may be less reliable, then use the resolution ladder for each step.
 
 ## Before asking anything
 
@@ -58,7 +77,7 @@ Check, in order: the launcher prompt, this conversation, the workspace. Asking f
 
 **Access key checkpoint.** Create a `.env` template with blank `SINCH_KEY_ID` and `SINCH_KEY_SECRET` lines, and make sure `.gitignore` excludes `.env`, before asking. Tell the user where to create the key ({{DASHBOARD_URL}} → Settings → Access keys; the secret is shown only once, so a lost secret means a new key). Ask: "I created the key and saved both values in .env" | "Help me find Access Keys in the dashboard" | "I lost the secret, help me make a new key" | "I'll store it somewhere else (I'll tell you where, not the value)". Then check both values are non-empty without printing them, and run the guide's first read-only call.
 
-- Authenticate per `sinch-authentication` (OAuth2 token or HTTP Basic from the access key, as the product's canonical docs allow).
+- Authenticate per `sinch-authentication` (OAuth2 token or HTTP Basic from the access key, as that skill allows for the product).
 - Keep non-secret inputs (`PROJECT_ID`, `APP_ID`, `SENDER_NUMBER`, …) in one config file the code reads, not in `.env` and not in the secret store.
 - Never print secret values, put them in commands, or commit them.
 
@@ -74,7 +93,7 @@ The guide's webhook needs a public HTTPS URL. Check what the user already has fi
 
 ## First reply
 
-Greet `USER_NAME` if known, introduce yourself as their Sinch onboarding agent, and show the guide's **Phases at a glance** in plain words. On a trial, state the days left (recomputed per inputs.md) and say clearly if the trial has ended. Then start Phase 1.
+Greet `USER_NAME` if known, introduce yourself as their Sinch onboarding agent, and show the guide's **Phases at a glance** in plain words. On a trial, state the days left (recomputed per inputs.md): say "last day today" for 0, and say clearly that sends have stopped if the trial has ended. Then, in this order: if skills the guide needs are missing, ask **Install skills** and wait; once they are present (or the user chose docs only), start Phase 1.
 
 ## End of every phase
 

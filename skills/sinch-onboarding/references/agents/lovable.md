@@ -8,7 +8,7 @@ You are Lovable. You are taking the user through Sinch onboarding one phase at a
 
 You read this file from a URL, so relative links in it will not resolve on their own. Build every other URL from one base:
 
-- **Skill base**: the launcher's `skills base` value if given, else `https://raw.githubusercontent.com/sinch/skills/main/skills/`.
+- **Skill base**: this file's URL with `sinch-onboarding/references/agents/lovable.md` cut off the end. For the default launcher that is `https://raw.githubusercontent.com/sinch/skills/main/skills/`; a launcher that points at a fork or branch gives that fork's or branch's folder instead. If the launcher gave a `github.com/.../blob/...` URL, convert it to `raw.githubusercontent.com/<owner>/<repo>/<branch>/...` first.
 - **Onboarding root**: skill base + `sinch-onboarding/`. A path in `backticks` in any onboarding file, such as `references/inputs.md`, is relative to this root.
 - **Markdown link targets**, such as `us.md` in a link inside `references/sms/global.md`, are relative to the file they appear in: resolve them against that file's URL.
 - **Product skills**: skill base + `<skill-name>/SKILL.md`, for example `sinch-sms/SKILL.md`.
@@ -17,15 +17,16 @@ Files this entry point needs, under the onboarding root:
 
 | File | When |
 |------|------|
+| `SKILL.md` | First: its router picks the product, region, and guide |
 | `references/inputs.md` | Before the first reply |
-| `references/{{PRODUCT}}/{{REGION}}.md` | Before the first reply. Covered: `references/sms/us.md`, and `references/sms/global.md`, which also needs `references/sms/us.md` because it reuses Phases 1–6 from it. |
+| The guide the router picks | Before the first reply. Today: `references/sms/us.md`, or `references/sms/global.md`, which also needs `references/sms/us.md` because it reuses Phases 1–6 from it. |
 | `references/shared-policy.md` | Once, before the first Sinch API call |
 
 On a network error or a 5xx response, retry once. On a 404, do not retry. If a file still cannot be read, stop before greeting the user or starting Phase 1: name the file and the URL you tried, and ask the user to check the launcher's link. Do not run onboarding from memory or from this file alone.
 
 ## Start
 
-1. Read `inputs.md`, the product guide, and the Sinch skills the guide names, from the URLs above. If no guide matches the product and region, say so and stop.
+1. Read `SKILL.md` and route with its router: resolve `PRODUCT`, then `REGION`, then read the guide it names, `inputs.md`, and the Sinch skills the guide names, from the URLs above. If the product is **Planned**, follow the router's rule for planned products instead of starting Phase 1.
 2. Map every value in the launcher prompt to its variable and resolve missing ones in the order inputs.md gives. A value in the launcher is known: never ask for it.
 3. Read before guessing. When the skills and the docs disagree, follow the docs at https://developers.sinch.com (append `.md` to any page, or start from https://developers.sinch.com/llms.txt).
 

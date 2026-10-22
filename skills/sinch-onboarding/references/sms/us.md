@@ -29,7 +29,7 @@ When `ACCOUNT_STATUS` is `trial`, also say how many days are left (`DAYS_LEFT`),
 
 ## Phase 1 — Connect your account (read-only)
 
-1. Summarize from the inputs, in three lines: who the user sends from, who they can send to, and when the trial ends.
+1. Summarize what is already known, in three lines: who the user sends from, who they can send to, and when the trial ends. Mark a value that is not known yet as "found after we connect" (sender) or "asked at the end of this phase" (verified numbers) rather than asking for it now.
 2. Run the adapter's **access key** checkpoint.
 3. Prove the credentials with one read-only authenticated call: get the Conversation API app `APP_ID` in project `PROJECT_ID`, or list numbers in the project. Resolve any missing `APP_ID` or `SENDER_NUMBER` from this response (see inputs.md). Owners: `sinch-authentication`, `sinch-conversation-api`.
 4. On 401 or 403, ask **Connection failed**: "I re-saved the keys, try again" | "Help me make a new key" | "I'm stuck".

@@ -5,25 +5,26 @@
 A launcher prompt starts onboarding and supplies known values, for example:
 
 ```text
-Use the sinch-onboarding skill to onboard me on Sinch. Follow references/agents/claude-code.md in that skill.
+Onboard me on Sinch. Install and follow this skill https://github.com/sinch/skills/blob/main/skills/sinch-onboarding/
+
 Use the following data:
-- name: Ata
-- product: sms
-- region: us
-- project id: 00000000-0000-0000-0000-000000000000
-- current balance: 2.00 USD
-- trial ends: 2026-10-22
+- USER_NAME: Ata
+- PRODUCT: sms
+- REGION: us
+- PROJECT_ID: 00000000-0000-0000-0000-000000000000
+- CREDIT_BALANCE: 2.00 USD
+- TRIAL_END: 2026-10-22
 ```
 
-Match launcher labels to the variables below case-insensitively, treating spaces, hyphens, and underscores as the same. A label not in this table is still a known fact: keep it, and do not ask for it again.
+Match each launcher line to a variable by its variable name (`PROJECT_ID`) or one of its labels (`project id`), case-insensitively, treating spaces, hyphens, and underscores as the same. A line that matches nothing in this table is still a known fact: keep it, and do not ask for it again.
 
 ## Variables
 
 | Variable | Launcher label | Secret? | If missing |
 |----------|----------------|---------|------------|
 | `USER_NAME` | name | no | Greet without a name. Do not ask. |
-| `PRODUCT` | product | no | Infer from the request; ask only if unclear. Covered: `sms`. |
-| `REGION` | region | no | `us` when every recipient is a US (+1) number, else `global`. |
+| `PRODUCT` | product | no | Resolve with the product router in `SKILL.md`, which also maps aliases such as `text` or `voice v2`. |
+| `REGION` | region | no | Resolve with the region table in `SKILL.md` for the chosen product. |
 | `ACCOUNT_ID` | account id | no | Optional. Only for the user's reference; ask only if the user wants it shown. |
 | `PROJECT_ID` | project id | no | Ask once. The user finds it in the dashboard. |
 | `APP_ID` | app id, conversation app id | no | After credentials work, list the project's Conversation API apps (read-only). One app: use it. Several: ask which. None: guide the user to create one. |
@@ -32,11 +33,11 @@ Match launcher labels to the variables below case-insensitively, treating spaces
 | `TRIAL_START` | trial start, account created | no | Optional when `TRIAL_END` is known. |
 | `TRIAL_END` | trial end, trial ends | no | `TRIAL_START` plus `TRIAL_LENGTH_DAYS` if both are known; else ask once. |
 | `TRIAL_LENGTH_DAYS` | trial length | no | Leave unset. Do not assume a length. |
-| `DAYS_LEFT` | days left | no | Always recompute from `TRIAL_END` against today's date (UTC). A launcher value is a snapshot; prefer the recomputed one and say if the trial has ended. |
+| `DAYS_LEFT` | days left | no | Always recompute: `TRIAL_END` minus today, in whole UTC days. `TRIAL_END` is the last day the trial works, so `0` means "last day today" and a negative number means the trial has ended. A launcher value is a snapshot; prefer the recomputed one. |
 | `CREDIT_BALANCE` | current balance, credits | no | Ask once, when a step depends on it. The value is a snapshot from when the launcher was written; ask the user to re-check the dashboard before any step where the balance matters. Never compute a new balance from guessed message prices. |
 | `CREDIT_TOTAL` | credit total, starting credits | no | Optional. |
 | `SENDER_NUMBER` | sender, trial number | no | List the project's numbers (read-only). On a trial, use the trial number the dashboard shows; ask if there is more than one candidate. |
-| `VERIFIED_DESTINATIONS` | verified numbers, verified destinations | no | Ask once. The user sees them in the dashboard. Treat an unlisted number as unverified. |
+| `VERIFIED_DESTINATIONS` | verified numbers, verified destinations | no | Ask once, at the end of Phase 1, before the Phase 1 → 2 checkpoint that names one. The user sees them in the dashboard. Treat an unlisted number as unverified. |
 | `MAX_VERIFIED_DESTINATIONS` | max verified numbers | no | Leave unset; if the dashboard reports a limit, use it. Do not assume one. |
 | `SERVICE_PLAN_ID` | service plan id | no | Needed only from the go-live phase. Ask once, with help to find it in the dashboard. |
 | `RECOMMENDED_TOPUP` | recommended top-up, upgrade amount | no | Do not suggest an amount. Point the user to the dashboard's upgrade page. |
