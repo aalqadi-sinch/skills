@@ -24,7 +24,7 @@ When `ACCOUNT_STATUS` is `trial`, also say how many days are left (`DAYS_LEFT`),
 ## Trial rules (phases 1–5)
 
 - Send only from the trial number (`SENDER_NUMBER`), and only to numbers in `VERIFIED_DESTINATIONS`. A trial account can only send to verified numbers: numbers the user owns and has verified in the dashboard under [Numbers > Verified numbers](https://dashboard.sinch.com/numbers/verified-numbers) (see [SMS troubleshooting](https://developers.sinch.com/docs/sms/api-reference/troubleshooting.md)). The phone number the user signed up with is verified automatically ([account status](https://developers.sinch.com/docs/voice-2.0/accounts.md)). Every test message and every inbound reply in phases 2 to 5 is therefore between Sinch and the user's own phones.
-- Before each send, check the destination is in `VERIFIED_DESTINATIONS`. Never ask the user to verify a number they do not own.
+- Before each send, check the destination is in `VERIFIED_DESTINATIONS`. Only numbers the user owns can be verified; do not suggest verifying anyone else's.
 - Do not buy numbers or submit registrations on a trial; those calls fail.
 - Never let the user think a trial number can message the general public.
 
