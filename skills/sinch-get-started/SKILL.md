@@ -60,7 +60,9 @@ Lead with what the user will be able to do, not with what gets installed. Say, i
    Keep the bullets at this level. Do not list product features such as batch sending or delivery reports here; which API to use is decided later, by the product skill.
 3. **One line on what it takes**: a few minutes, signing in or signing up in their browser, and creating a key; you will check what is already set up and skip it; nothing is sent or charged without asking them first.
 
-End with one question: "Continue" | "Not now". Use the question tool if you have one; otherwise ask them to reply "continue". On "Not now", stop and say they can come back any time. On "Continue", start the detection below.
+Write the purpose line, the bullet list, and the "what it takes" line as normal message text, formatted as in the example below, with each item on its own bullet line. Never fold them into one paragraph, and never put them inside a question tool's question: most question tools show plain text, so the bullets are lost.
+
+Then end with one question: "Continue" | "Not now". Use the question tool if you have one, with only "Ready to start?" as its question text; otherwise ask them to reply "continue". On "Not now", stop and say they can come back any time. On "Continue", start the detection below.
 
 Only list what this flow and the skills it hands off to really deliver. Do not promise a live sender, a finished app, or a product that has no Sinch skill. For example:
 
