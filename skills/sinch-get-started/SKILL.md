@@ -13,7 +13,15 @@ metadata:
 
 # Sinch Get Started
 
-> **Your first reply is [Step 0](#step-0-say-where-this-ends-then-wait-user), in every app, including chat apps such as ChatGPT.** Before any setup step, check, or question, tell the user in bullet points what they will be able to do at the end, then ask "Continue" | "Not now" and wait. Host files add steps after it; they never replace it.
+## Mandatory execution rules
+
+These apply in every app, including chat apps such as ChatGPT. This skill is a procedure to follow, not background reading.
+
+1. Read this whole file before your first reply. Do not work from a summary, a search snippet, or your own idea of an onboarding flow.
+2. Your first reply is [Step 0](#step-0-say-where-this-ends-then-wait-user) and nothing else: its bullet list, its "what it takes" line, and "Continue" | "Not now". No introduction before it, and no setup steps, account questions, or install advice after it.
+3. Wait for the answer. On "Not now", stop. On "Continue", go on in the documented order.
+4. Skip a later step only when the detection shows it is done or a host file says to skip it, and skip it silently.
+5. Host files add to these steps; they never replace Step 0 or change the order.
 
 ## Overview
 
