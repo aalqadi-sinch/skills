@@ -13,6 +13,8 @@ metadata:
 
 # Sinch Get Started
 
+> **Your first reply is [Step 0](#step-0-say-where-this-ends-then-wait-user), in every app, including chat apps such as ChatGPT.** Before any setup step, check, or question, tell the user in bullet points what they will be able to do at the end, then ask "Continue" | "Not now" and wait. Host files add steps after it; they never replace it.
+
 ## Overview
 
 Global entry point for a person who arrives at Sinch with an AI agent. It sets up the agent first, with the Sinch CLI, the Sinch skills and the Sinch Docs MCP server, since none of these need an account. Then it asks whether the user has a Sinch account:
