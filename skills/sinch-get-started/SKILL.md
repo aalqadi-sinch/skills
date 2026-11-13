@@ -120,6 +120,7 @@ People would rather pick an option or fill in a field than read a wall of text. 
 | 1 | Install the Sinch CLI? Yes / No |
 | 2 | How to add Sinch skills: Sinch CLI / My skills manager (skills.sh, Tessl, …) / Plugin / Skip (only show the routes that apply) |
 | 2, 3 | Where to install: This project only / All my projects (global). Ask once, before the first install, and reuse the answer for the skills and the Docs MCP server |
+| After 3 | Load what you installed: Done / I'm stuck (commands go in the message text, not the form) |
 | 4 | Do you have a Sinch account? Yes / No / I want to try Sinch first / Not sure |
 | 5 | What will call Sinch: The Sinch CLI / Code I'm building / Both (sets where the key goes) |
 | 5 | Confirm when done: "I've created the key" / "I need help" |
@@ -192,7 +193,7 @@ Only when all four fail, say the skill is missing and use this skill's fallback.
 
 ## Getting Started
 
-The flow is seven steps: set up the agent (steps 1 to 3), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done, but never skip [step 0](#step-0-say-where-this-ends-then-wait-user): it comes first, before detection.
+The flow is seven steps: set up the agent (steps 1 to 3, then a reload by the user), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done, but never skip [step 0](#step-0-say-where-this-ends-then-wait-user): it comes first, before detection.
 
 ### Choose where to install
 
@@ -264,7 +265,17 @@ Pick the steps for the host you identified, and show only those. Never suggest a
 2. **Chat app** (Claude, ChatGPT, Gemini, Grok, Copilot, Lovable and others, in a browser, desktop or phone). There is no Sinch plugin. Follow [references/hosts/chat-apps.md](references/hosts/chat-apps.md) and the app's own [host file](#host-steps): name the app, skip steps 1 and 2, and offer the docs connector only where it gives the exact clicks. Never tell the user to find "a custom connector or remote MCP server" on their own.
 3. **Neither.** Continue without tooling. You can still read the Sinch docs as Markdown from https://developers.sinch.com/llms.txt if you can fetch URLs.
 
-After this route, continue at step 4. At step 5, use [Step 5 for non-developers](#step-5-for-non-developers) unless the plugin has its own secure place for the key; then name that exact place. If you cannot run commands, you cannot do step 6; say so plainly, and treat a working read-only call through the plugin's tools, if it has any, as the check.
+After this route, do [Load what you installed](#load-what-you-installed-user), then continue at step 4. At step 5, use [Step 5 for non-developers](#step-5-for-non-developers) unless the plugin has its own secure place for the key; then name that exact place. If you cannot run commands, you cannot do step 6; say so plainly, and treat a working read-only call through the plugin's tools, if it has any, as the check.
+
+### Load what you installed [USER]
+
+Most agents only see new skills, plugins and MCP servers after the user reloads or restarts them, and you usually cannot do that yourself. Do not report setup as complete and move on. Make it a separate checkpoint after steps 1 to 3, including after the no-terminal route:
+
+1. In one short message, list only the actions this setup needs, in the order the [host file](#host-steps) gives, each on its own line with the exact command in a code span, such as `/reload-skills`. Put a restart last, because it ends this session. With it, tell the user how to come back: reopen the agent in the same folder and say "continue Sinch setup"; the detection then skips what is done.
+2. Ask with the question tool: "Done" | "I'm stuck". Do not put the commands only inside the question; question forms often render plain text.
+3. Check the result before continuing: the Sinch skills now appear in your skill list, and `sinch-docs` (and the plugin's tools, on the plugin route) are available. If something is missing, say which item and ask for that action again. If the user would rather not restart now, continue without the new MCP server and use https://developers.sinch.com/llms.txt for docs until the next restart.
+
+Skip this checkpoint only when nothing was installed or changed in steps 1 to 3, or the host file says the agent picks changes up on its own.
 
 ### Step 4: Ask whether the user has a Sinch account [USER]
 

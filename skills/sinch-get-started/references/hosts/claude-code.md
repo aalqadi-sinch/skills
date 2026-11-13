@@ -36,8 +36,14 @@ The Docs MCP server works straight away. The Build MCP server needs the access k
 - **Sinch CLI:** the user runs `sinch auth login` in their own terminal.
 - **Code they build:** a git-ignored `.env`, as `SKILL.md` describes.
 
-## After setup
+## After setup: load what you installed
 
-- New skills: ask the user to type `/reload-skills`. You cannot run slash commands yourself.
-- New MCP servers, a new plugin, or changed `env` values: Claude Code picks them up after a restart.
-- To check: `claude mcp list` shows `sinch-docs`, and `sinch` once its credentials are set.
+You cannot run slash commands or restart Claude Code yourself, so this is a user checkpoint (`SKILL.md`, "Load what you installed"). Never end with "Run /reload-skills, then restart" in passing. List only the lines that apply, in this order:
+
+| What changed | The user does | You then check |
+|--------------|---------------|----------------|
+| Skills installed (step 2) | Type `/reload-skills` | Your skill list shows the Sinch skills, such as `sinch-sms` |
+| Plugin installed (plugin route) | Type `/reload-plugins` | The plugin's skills and `sinch-docs` tools are listed |
+| MCP server added (step 3), or `env` values changed in `settings.json` | Restart Claude Code: quit and reopen the app or session in the same folder. In the terminal, `claude --continue` resumes this conversation | `claude mcp list` shows `sinch-docs`, and `sinch` once its credentials are set |
+
+Ask "Done" | "I'm stuck" after the list. A restart ends this session, so put it last. Tell the user to say "continue Sinch setup" when they are back, and keep the steps 1 to 3 detection in `SKILL.md` so it resumes at step 4.

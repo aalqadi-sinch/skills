@@ -51,7 +51,7 @@ Get every Sinch API detail through the Sinch skills, not by browsing the docs si
 
 2. Then type `/reload-skills` in Claude Code, so this session sees the new skills without a restart. You cannot run slash commands yourself; the user has to.
 
-Options: "I installed them and ran /reload-skills" | "Continue without skills (docs only)" | "I'm stuck". After the first answer, check that your skill tool now lists `sinch-sms` before continuing. If it does not, ask the user to run `/reload-skills` again or restart the session. On "Continue without skills", say once that answers will come from the docs and may be less reliable, then use the resolution ladder for each step.
+Options: "I installed them and ran /reload-skills" | "Continue without skills (docs only)" | "I'm stuck". After the first answer, check that your skill tool now lists `sinch-sms` before continuing. If it does not, ask the user to run `/reload-skills` again (`/reload-plugins` if they installed the plugin), or to restart the session and then say "continue Sinch onboarding". On "Continue without skills", say once that answers will come from the docs and may be less reliable, then use the resolution ladder for each step.
 
 ## Before asking anything
 
