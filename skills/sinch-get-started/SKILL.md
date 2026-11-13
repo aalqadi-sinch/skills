@@ -70,10 +70,11 @@ If your agent has no such tool, ask one short question at a time, with the choic
 
 Set up the agent first, then ask about the account. Before step 1, look at what you can check yourself in the workspace and conversation:
 
-1. **Environment**: can you run terminal commands at all, and are `node` and `npx` available? If you are a chat agent with no terminal (for example a chat app in a browser or desktop app), or the device blocks installs, use [the no-terminal route](#no-terminal-or-locked-down-device) for steps 1 to 3.
-2. **Agent tooling**: is the `sinch` CLI on the PATH (`sinch --version`), are the Sinch skills or a Sinch plugin already installed, and is a `sinch-docs` MCP server configured?
-3. **Credentials**: are `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, and `SINCH_KEY_SECRET` already set (check presence only, never print values), or does `sinch auth status` report a login? If so, the user has an account and a key; skip to step 6.
-4. **Goal**: did the user already say what they want to build? If not, ask at step 7.
+1. **Host**: which agent or app are you running in? You can tell from your own context: your product name, the tools you have, and whether you run on the user's machine or in a hosted sandbox. Give the user only that host's steps; do not list other agents' commands. Ask only if you genuinely cannot tell, and then offer just the likely hosts.
+2. **Environment**: can you run terminal commands at all, and are `node` and `npx` available? If you are a chat agent with no terminal, if your terminal is a hosted sandbox rather than the user's machine, or if the device blocks installs, use [the no-terminal route](#no-terminal-or-locked-down-device) for steps 1 to 3.
+3. **Agent tooling**: is the `sinch` CLI on the PATH (`sinch --version`), are the Sinch skills or a Sinch plugin already installed, and is a `sinch-docs` MCP server configured?
+4. **Credentials**: are `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, and `SINCH_KEY_SECRET` already set (check presence only, never print values), or does `sinch auth status` report a login? If so, the user has an account and a key; skip to step 6.
+5. **Goal**: did the user already say what they want to build? If not, ask at step 7.
 
 Do not ask whether the user has a Sinch account until step 4. Steps 1 to 3 need no account.
 
@@ -97,8 +98,8 @@ Load nothing else up front. Load `sinch-cli` at step 1 if the user takes the CLI
 Before saying a Sinch skill such as `sinch-onboarding` is not installed, look for it where this skill came from. Try these in order and stop at the first that works:
 
 1. **Your skill tool.** If it lists the skill, load it.
-2. **Next to this skill.** Sinch skills are installed side by side, so look for `<skill-name>/SKILL.md` in the folder that contains this skill's own folder (the parent of the `sinch-get-started/` folder).
-3. **The same repository.** If you read this skill from a URL, read the other skill from the same repository and branch by swapping the folder name: for example `https://raw.githubusercontent.com/sinch/skills/main/skills/sinch-get-started/SKILL.md` becomes `.../skills/sinch-onboarding/SKILL.md`. Only do this for the repository this skill came from. If you do not know where this skill came from, use `https://raw.githubusercontent.com/sinch/skills/main/skills/<skill-name>/SKILL.md`. Tell the user you are reading the published copy.
+2. **Next to this skill.** Sinch skills are installed side by side, in one shared folder. Look in the folder that holds this skill's folder for a folder with the other skill's name.
+3. **The same repository.** If you read this skill from a URL, read the other skill from the same repository and branch, in the folder named after it beside this skill's folder. Only do this for the repository this skill came from. If you do not know where this skill came from, use the `skills` folder of the `sinch/skills` repository on GitHub, `main` branch. Tell the user you are reading the published copy.
 4. **Offer to install it.** Use the same route as step 2 below (`sinch skills install`, the user's skills manager, or the plugin).
 
 Only when all four fail, say the skill is missing and use this skill's fallback.
@@ -132,7 +133,7 @@ sinch skills install --all
 
 If they have no skills manager, offer the plugin route below, or point them to https://skills.sh/?q=Sinch, which lists the Sinch skills and how to install them.
 
-If the user prefers their agent's plugin system, the Sinch plugins bundle the skills and the Docs MCP server for Claude Code, Cursor, Gemini CLI, OpenAI Codex and others; send them to https://github.com/sinch/sinch-plugins for the per-agent install command, and skip step 3 if the plugin added the Docs MCP server. Use one route, not several, or the skills load twice.
+If the user prefers their agent's plugin system, the Sinch plugins bundle the skills and the Docs MCP server for Claude Code, Cursor, Gemini CLI, OpenAI Codex and others; send them to the section for the agent you are running in at https://github.com/sinch/sinch-plugins, and skip step 3 if the plugin added the Docs MCP server. Use one route, not several, or the skills load twice.
 
 If the user skips skills entirely, go on; this skill still works without them, and the Docs MCP server covers the docs.
 
@@ -178,6 +179,7 @@ For any other agent, add a remote HTTP MCP server named `sinch-docs` with that U
 Use this route for steps 1 to 3 when any of these is true:
 
 - You are a chat agent that cannot run terminal commands.
+- Your terminal is a hosted sandbox (for example a chat app's code tool), not the user's machine. Installing the CLI or skills there does not reach the user's agent.
 - `node`, `npm`, or `npx` is missing, and the user cannot or does not want to install Node.js.
 - An install fails for lack of permissions (for example `EACCES`, or "requires administrator"), which is common on enterprise-managed devices.
 
@@ -185,8 +187,13 @@ Do not work around a blocked install: no `sudo`, no changing npm's global folder
 
 Instead, set the agent up through its own plugin or connector system, which the user does from the app's interface and which needs no admin rights on most devices:
 
-1. **Sinch plugin (preferred).** The Sinch plugins bundle the Sinch skills and the Sinch Docs MCP server. Send the user to https://github.com/sinch/sinch-plugins and the section for their agent. For example, in Claude Code they run `/plugin marketplace add https://github.com/sinch/sinch-plugins.git`, then `/plugin install sinch-claude-plugin`; in Cursor they add `sinch-cursor-plugin` from the marketplace. If the agent can install plugins itself from a GitHub repository, offer to install from `sinch/sinch-plugins`, and ask before doing it.
-2. **Docs MCP only.** If the app has no plugin system but accepts remote MCP servers or custom connectors, have the user add `https://developers.sinch.com/mcp` in the app's settings. Some organizations require an admin to allow new connectors; if so, tell the user to ask their admin.
+Pick the steps for the host you identified, and show only those. Never suggest a command your host does not support, such as a `/plugin` slash command outside Claude Code.
+
+1. **Coding agent with a plugin system (preferred).** The Sinch plugins bundle the Sinch skills and the Sinch Docs MCP server. Give the user the install steps from your own agent's section of https://github.com/sinch/sinch-plugins. For example, in Claude Code they run `/plugin marketplace add https://github.com/sinch/sinch-plugins.git`, then `/plugin install sinch-claude-plugin`. If you can install plugins yourself from a GitHub repository, offer to install from `sinch/sinch-plugins`, and ask before doing it.
+2. **Chat app without plugins** (for example a browser or desktop chat app). There is no plugin command to give. Instead:
+   - **Docs:** have the user add `https://developers.sinch.com/mcp` as a custom connector or remote MCP server in the app's settings, if the app supports one. Some organizations require an admin to allow new connectors; if so, tell the user to ask their admin.
+   - **Skills:** if the app lets users add skills in its settings, have the user add the Sinch skills from the `sinch/skills` repository there. Describe where to find that setting only if you know your app's settings; otherwise say it is in the app's settings and let the user look.
+   - **Or carry on without either:** you can still read this skill and fetch the docs, so setup is not required to continue.
 3. **Neither.** Continue without tooling. You can still read the Sinch docs as Markdown from https://developers.sinch.com/llms.txt if you can fetch URLs.
 
 After this route, continue at step 4. At step 5, the CLI and environment-variable options may not exist: have the user store the access key wherever the plugin or app asks for it (its settings or its own secure prompt), never in chat. If you cannot run commands, you cannot do step 6; say so plainly, and treat a working read-only call through the plugin's tools, if it has any, as the check.
