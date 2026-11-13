@@ -59,4 +59,4 @@ Never invent an ID, number, date, or price. When a value changes (a new sender n
 
 ## Keep facts in one place
 
-Non-secret values (`PROJECT_ID`, `APP_ID`, `APP_REGION`, `SENDER_NUMBER`, `VERIFIED_DESTINATIONS`) are configuration, not secrets: keep them in one server-side config location the integration reads. Secrets go only in the secret store the agent adapter names.
+Non-secret values (`PROJECT_ID`, `APP_ID`, `APP_REGION`, `SENDER_NUMBER`, `VERIFIED_DESTINATIONS`) are configuration, not secrets: keep them in one server-side config location the integration reads, and tell the user which file or setting holds them, so they can see, change, or remove them. Secrets go only in the secret store the agent adapter names.

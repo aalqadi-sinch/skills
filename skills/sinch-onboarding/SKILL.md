@@ -55,7 +55,7 @@ Decide whether the user has a Sinch account before anything else:
 
 **Sign-up [USER].** Sinch accounts are created in the browser; there is no API or CLI command that creates one. Ask the user to open https://dashboard.sinch.com/signup, sign up with a work email, follow the prompts until they land on the dashboard, then answer: "I'm in the dashboard" | "I'm stuck". Do not automate sign-up, solve verification steps, or enter details on the user's behalf. A new account starts on a free trial: set `ACCOUNT_STATUS` to `trial`, and ask the user to read the trial end date and credit balance from the dashboard when a phase needs them. The entry file's access key checkpoint, in Phase 1, then creates and stores the first access key.
 
-**Agent not set up.** If the agent has no Sinch skills and no Docs MCP server, and `sinch-get-started` is installed, run its steps 1 to 3 first, then come back here. Skip this when `sinch-get-started` handed off, or when the user is in Lovable.
+**Agent not set up.** If the agent has no Sinch skills and no Docs MCP server, find `sinch-get-started` and run its steps 1 to 3 first, then come back here. Look for it with your skill tool, then next to this skill (in the folder that contains the `sinch-onboarding/` folder), then in the same repository and branch this skill came from (swap `sinch-onboarding` for `sinch-get-started` in the path). Treat it as missing only when all three fail. Skip this when `sinch-get-started` handed off, or when the user is in Lovable.
 
 ### 1. Product router
 

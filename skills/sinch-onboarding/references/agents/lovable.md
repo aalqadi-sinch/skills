@@ -86,7 +86,7 @@ Before Phase 1, inspect the current Lovable project. Do not assume it is blank w
 **Blank project, or only starter files:**
 
 - Do not assume an app exists.
-- Explain that you can build a small SMS demo to test Sinch: a minimal page that sends to the verified trial numbers and, from Phase 3, shows replies.
+- Explain that you can build a small SMS demo to test Sinch: a minimal page that sends to the verified trial numbers and, from Phase 3, shows replies. Say that each send passes the recipient number and the text to Sinch and on through the carriers.
 - Ask **Project fit**: "Build the SMS demo" | "I'll describe the app I want" | "I'm stuck".
 
 **Cannot tell:** ask **Project fit**: "Add SMS to my existing app" | "Build an SMS demo" | "I'm stuck".
