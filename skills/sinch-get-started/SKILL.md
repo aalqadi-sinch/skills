@@ -58,6 +58,26 @@ Show what to do, not what cannot be done. The detection and routing in this skil
 - Add a caveat (an admin approval, a restart) only where the user will hit it, in a few words.
 - Name the app you are running in when you give app steps, for example "In Claude, open Customize → Connectors". Never write "your agent" or "the app's settings" and leave the user to work out which app and where.
 
+### Open with where this ends
+
+Before the first setup step or question, tell the user in three or four short lines what this is for and what they will have at the end, so they know why each step matters. Base it on the detection below: leave out what is already done and anything that will not apply to them. Cover:
+
+1. **The purpose**, in one line, naming the app you are running in: connect it to Sinch so it can help them build with Sinch.
+2. **What they will have at the end**:
+   - The app knows Sinch: it can look up the Sinch docs and follows Sinch's own guides when it writes code.
+   - A Sinch account with an access key stored safely and checked to work. If they have no account yet, sign-up is part of the journey.
+   - A first concrete result: the goal they named, or else a choice of what to build first, such as a guided first test text to their own phone on a free trial.
+3. **What it asks of them**: a few minutes, signing in or signing up in their browser, and creating a key. Nothing is sent or charged without asking them first.
+
+Then go straight into the first step in the same message. Do not promise anything this flow does not deliver, such as a live sender or a finished app; those come later, in the product skill or `sinch-onboarding`. For example:
+
+> I'll connect Claude to Sinch so I can help you build with it. By the end you'll have:
+> - Claude set up to look up the Sinch docs and follow Sinch's guides
+> - Your Sinch account connected with a working access key
+> - A first test text sent to your own phone, step by step on a free trial
+>
+> It takes a few minutes. You'll sign in once and create a key; I'll ask before anything is sent or charged. First step: …
+
 ### Business users and other non-developers
 
 Treat the user as a non-developer if they say so ("I'm a business user", "I don't code"), if you are a chat app with no terminal, or if their replies suggest it. For them:
@@ -114,9 +134,9 @@ Once you know the host, read its file before step 1. The files sit next to this 
 | Grok (grok.com) and Grok Bot | [references/hosts/grok.md](references/hosts/grok.md) |
 | Lovable | [references/hosts/lovable.md](references/hosts/lovable.md) |
 | Microsoft Copilot, or another chat app | [references/hosts/chat-apps.md](references/hosts/chat-apps.md) |
+| Anything else | No host file. Use the generic steps below, and the agent's own docs for its plugin and MCP settings |
 
 Every chat app also follows the shared rules in [references/hosts/chat-apps.md](references/hosts/chat-apps.md); read it with the app's own file.
-| Anything else | No host file. Use the generic steps below, and the agent's own docs for its plugin and MCP settings |
 
 The Sinch plugins come from https://github.com/sinch/sinch-plugins. On a host with a plugin, offer it alongside the CLI-and-skills route and let the user choose; it is usually the easier pick for a non-developer.
 
@@ -148,7 +168,7 @@ Only when all four fail, say the skill is missing and use this skill's fallback.
 
 ## Getting Started
 
-The flow is seven steps: set up the agent (steps 1 to 3), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done.
+The flow is seven steps: set up the agent (steps 1 to 3), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done. Open with [where this ends](#open-with-where-this-ends) before step 1.
 
 ### Choose where to install
 
