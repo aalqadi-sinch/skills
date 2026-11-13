@@ -44,6 +44,32 @@ It is product-neutral: it does not pick SMS, Voice, Email or any other product f
 
 Apply the shared evidence tiers. Account creation, sign-up screens, and dashboard layout change often; describe them at the level of "sign up at this URL" and let the dashboard guide the user, rather than narrating screens from memory.
 
+### Step 0: Say where this ends, then wait [USER]
+
+Your first reply is this message and nothing else. Send it before you run any command, read any other file, check the workspace, or start a setup step, and send it even if you expect everything to be set up already. Then stop and wait for the user's answer.
+
+In three or four short lines, say:
+
+1. **The purpose**, naming the app you are running in: connect it to Sinch so it can help them build with Sinch.
+2. **What they will have at the end**:
+   - The app knows Sinch: it can look up the Sinch docs and follows Sinch's own guides when it writes code.
+   - A Sinch account with an access key stored safely and checked to work. If they have no account yet, sign-up is part of it.
+   - A first result: the goal they named, or else a choice of what to build first, such as a guided first test text to their own phone on a free trial.
+3. **What it asks of them**: a few minutes, signing in or signing up in their browser, and creating a key. You will check what is already set up and skip it. Nothing is sent or charged without asking them first.
+
+End with one question: "Continue" | "Not now". Use the question tool if you have one; otherwise ask them to reply "continue". On "Not now", stop and say they can come back any time. On "Continue", start the detection below.
+
+Do not promise anything this flow does not deliver, such as a live sender or a finished app; those come later, in the product skill or `sinch-onboarding`. For example:
+
+> I'll connect Claude to Sinch so I can help you build with it. By the end you'll have:
+> - Claude set up to look up the Sinch docs and follow Sinch's guides
+> - Your Sinch account connected with a working access key
+> - A first test text sent to your own phone, step by step on a free trial
+>
+> It takes a few minutes. I'll check what's already set up and skip it. You'll sign in once and create a key, and I'll ask before anything is sent or charged.
+>
+> Ready to start? **Continue** | **Not now**
+
 ### How this skill works
 
 Every step is marked **[USER]** (the person must do it in a browser or terminal; you cannot) or **[AGENT]** (you do it, within the side-effect rules). At each **[USER]** step, say exactly what to do, give the URL, then stop and wait for the user to confirm before moving on.
@@ -57,26 +83,6 @@ Show what to do, not what cannot be done. The detection and routing in this skil
 - Present setup as a short list of actions with their links or values, then one question. For example: "Two quick steps to connect me to Sinch: 1. Add the Sinch Docs connector: `https://developers.sinch.com/mcp`. 2. Add the Sinch skills from `github.com/sinch/skills`." Then ask "Done" | "Skip for now" | "Help me find the setting".
 - Add a caveat (an admin approval, a restart) only where the user will hit it, in a few words.
 - Name the app you are running in when you give app steps, for example "In Claude, open Customize → Connectors". Never write "your agent" or "the app's settings" and leave the user to work out which app and where.
-
-### Open with where this ends
-
-Before the first setup step or question, tell the user in three or four short lines what this is for and what they will have at the end, so they know why each step matters. Base it on the detection below: leave out what is already done and anything that will not apply to them. Cover:
-
-1. **The purpose**, in one line, naming the app you are running in: connect it to Sinch so it can help them build with Sinch.
-2. **What they will have at the end**:
-   - The app knows Sinch: it can look up the Sinch docs and follows Sinch's own guides when it writes code.
-   - A Sinch account with an access key stored safely and checked to work. If they have no account yet, sign-up is part of the journey.
-   - A first concrete result: the goal they named, or else a choice of what to build first, such as a guided first test text to their own phone on a free trial.
-3. **What it asks of them**: a few minutes, signing in or signing up in their browser, and creating a key. Nothing is sent or charged without asking them first.
-
-Then go straight into the first step in the same message. Do not promise anything this flow does not deliver, such as a live sender or a finished app; those come later, in the product skill or `sinch-onboarding`. For example:
-
-> I'll connect Claude to Sinch so I can help you build with it. By the end you'll have:
-> - Claude set up to look up the Sinch docs and follow Sinch's guides
-> - Your Sinch account connected with a working access key
-> - A first test text sent to your own phone, step by step on a free trial
->
-> It takes a few minutes. You'll sign in once and create a key; I'll ask before anything is sent or charged. First step: …
 
 ### Business users and other non-developers
 
@@ -93,6 +99,7 @@ People would rather pick an option or fill in a field than read a wall of text. 
 
 | Step | Ask as |
 |------|--------|
+| 0 | Ready to start? Continue / Not now |
 | 1 | Install the Sinch CLI? Yes / No |
 | 2 | How to add Sinch skills: Sinch CLI / My skills manager (skills.sh, Tessl, …) / Plugin / Skip (only show the routes that apply) |
 | 2, 3 | Where to install: This project only / All my projects (global). Ask once, before the first install, and reuse the answer for the skills and the Docs MCP server |
@@ -107,7 +114,7 @@ If your agent has no such tool, ask one short question at a time, with the choic
 
 ### Detect where the user is, then skip what is done
 
-Set up the agent first, then ask about the account. Before step 1, look at what you can check yourself in the workspace and conversation:
+Set up the agent first, then ask about the account. After the user answers "Continue" at [step 0](#step-0-say-where-this-ends-then-wait-user), and before step 1, look at what you can check yourself in the workspace and conversation:
 
 1. **Host**: which agent or app are you running in? You can tell from your own context: your product name, the tools you have, and whether you run on the user's machine or in a hosted sandbox. Give the user only that host's steps; do not list other agents' commands. Ask only if you genuinely cannot tell, and then offer just the likely hosts.
 2. **Environment**: can you run terminal commands at all, and are `node` and `npx` available? If you are a chat agent with no terminal, if your terminal is a hosted sandbox rather than the user's machine, or if the device blocks installs, use [the no-terminal route](#no-terminal-or-locked-down-device) for steps 1 to 3.
@@ -168,7 +175,7 @@ Only when all four fail, say the skill is missing and use this skill's fallback.
 
 ## Getting Started
 
-The flow is seven steps: set up the agent (steps 1 to 3), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done. Open with [where this ends](#open-with-where-this-ends) before step 1.
+The flow is seven steps: set up the agent (steps 1 to 3), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done, but never skip [step 0](#step-0-say-where-this-ends-then-wait-user): it comes first, before detection.
 
 ### Choose where to install
 
