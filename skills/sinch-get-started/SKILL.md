@@ -49,6 +49,13 @@ Every step is marked **[USER]** (the person must do it in a browser or terminal;
 
 Talk plainly. The person may not be a developer. The first time you use a term, explain it in the same sentence, for example "access keys, the username and password your code uses to talk to Sinch".
 
+Show what to do, not what cannot be done. The detection and routing in this skill are for you, not the user:
+
+- Do not explain which routes you ruled out or why (for example that the CLI cannot be installed, or that your terminal is a sandbox). Go straight to the steps that work for this user.
+- Do not mention this skill or quote its rules ("the skill says…"). Speak as yourself.
+- Present setup as a short list of actions with their links or values, then one question. For example: "Two quick steps to connect me to Sinch: 1. Add the Sinch Docs connector: `https://developers.sinch.com/mcp`. 2. Add the Sinch skills from `github.com/sinch/skills`." Then ask "Done" | "Skip for now" | "Help me find the setting".
+- Add a caveat (an admin approval, a restart) only where the user will hit it, in a few words.
+
 ### Ask with options, not paragraphs
 
 People would rather pick an option or fill in a field than read a wall of text. If your agent has a tool for structured questions, such as multiple-choice questions, buttons, or forms, use it for every decision in this flow, and keep the text around it to a sentence or two. Good candidates:
@@ -72,7 +79,7 @@ Set up the agent first, then ask about the account. Before step 1, look at what 
 
 1. **Host**: which agent or app are you running in? You can tell from your own context: your product name, the tools you have, and whether you run on the user's machine or in a hosted sandbox. Give the user only that host's steps; do not list other agents' commands. Ask only if you genuinely cannot tell, and then offer just the likely hosts.
 2. **Environment**: can you run terminal commands at all, and are `node` and `npx` available? If you are a chat agent with no terminal, if your terminal is a hosted sandbox rather than the user's machine, or if the device blocks installs, use [the no-terminal route](#no-terminal-or-locked-down-device) for steps 1 to 3.
-3. **Agent tooling**: is the `sinch` CLI on the PATH (`sinch --version`), are the Sinch skills or a Sinch plugin already installed, and is a `sinch-docs` MCP server configured?
+3. **Agent tooling**: is the `sinch` CLI on the PATH (`sinch --version`), are the Sinch skills or a Sinch plugin already installed, and is a Sinch docs connector or MCP server configured? It may have any name, for example `sinch-docs` or "Sinch Build Docs"; check whether it is connected or only installed.
 4. **Credentials**: are `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, and `SINCH_KEY_SECRET` already set (check presence only, never print values), or does `sinch auth status` report a login? If so, the user has an account and a key; skip to step 6.
 5. **Goal**: did the user already say what they want to build? If not, ask at step 7.
 
@@ -110,12 +117,7 @@ The flow is seven steps: set up the agent (steps 1 to 3), then the account and k
 
 ### Step 1: Install the Sinch CLI [AGENT]
 
-The CLI gives the agent terminal commands for numbers, messaging, voice and more, installs the Sinch skills at step 2, and stores the access key in the OS keychain at step 5. It needs Node.js 20 or later. Skip this step if `sinch --version` already works. Otherwise load `sinch-cli`, then:
-
-```bash
-npm install -g @sinch/cli
-sinch --version
-```
+The CLI gives the agent terminal commands for numbers, messaging, voice and more, installs the Sinch skills at step 2, and stores the access key in the OS keychain at step 5. It needs Node.js 20 or later. Skip this step if `sinch --version` already works. Otherwise load `sinch-cli`, run `npm install -g @sinch/cli`, then confirm with `sinch --version`.
 
 If the user does not want the CLI, skip this step; step 2 then uses the user's skills manager, and step 5 uses environment variables. If Node.js is not available or the install fails for lack of permissions, use [the no-terminal route](#no-terminal-or-locked-down-device) instead.
 
@@ -123,11 +125,7 @@ If the user does not want the CLI, skip this step; step 2 then uses the user's s
 
 Skills are briefs like this one, one per Sinch product, published from https://github.com/sinch/skills. Skip this step if the detection found them, or a Sinch plugin, already installed. Otherwise use the first route that applies:
 
-**With the CLI from step 1** [AGENT]. Tell the user it installs all Sinch skills globally for their agents, then run:
-
-```bash
-sinch skills install --all
-```
+**With the CLI from step 1** [AGENT]. Tell the user it installs all Sinch skills globally for their agents, then run `sinch skills install --all`.
 
 **Without the CLI: the user's skills manager** [USER]. Use the skills manager the user already trusts, such as the `skills` tool from skills.sh, Tessl, or their agent's own skill or plugin manager. Ask which one they use, then tell them to install from the Sinch skills repository, `sinch/skills` (https://github.com/sinch/skills); the repository also publishes a Tessl tile under that name. Their tool downloads the skills and writes them into the agent's skills folder, so the user runs it, not you. Do not write the install command for them from memory; their tool's own help or docs gives the exact syntax. Ask them to tell you when it is done.
 
@@ -139,18 +137,15 @@ If the user skips skills entirely, go on; this skill still works without them, a
 
 ### Step 3: Connect the Sinch Docs MCP server [AGENT]
 
+Before adding anything, check the user's installed connectors and MCP servers for an existing Sinch docs connector, whatever its name (for example "Sinch Build Docs"). If one is installed but not connected or enabled, ask the user to connect it, and skip the rest of this step. Add a new one only if none exists.
+
 The Docs MCP server lets the agent search the Sinch docs and read API definitions. It is remote, over HTTP, and needs no credentials or account:
 
 ```
 https://developers.sinch.com/mcp
 ```
 
-Add it with the agent's own MCP configuration. Examples:
-
-```bash
-# Claude Code
-claude mcp add --transport http sinch-docs https://developers.sinch.com/mcp
-```
+Add it with the agent's own MCP configuration. In Claude Code, run `claude mcp add --transport http sinch-docs https://developers.sinch.com/mcp`. Other examples:
 
 VS Code, in `.vscode/mcp.json`:
 
@@ -191,7 +186,7 @@ Pick the steps for the host you identified, and show only those. Never suggest a
 
 1. **Coding agent with a plugin system (preferred).** The Sinch plugins bundle the Sinch skills and the Sinch Docs MCP server. Give the user the install steps from your own agent's section of https://github.com/sinch/sinch-plugins. For example, in Claude Code they run `/plugin marketplace add https://github.com/sinch/sinch-plugins.git`, then `/plugin install sinch-claude-plugin`. If you can install plugins yourself from a GitHub repository, offer to install from `sinch/sinch-plugins`, and ask before doing it.
 2. **Chat app without plugins** (for example a browser or desktop chat app). There is no plugin command to give. Instead:
-   - **Docs:** have the user add `https://developers.sinch.com/mcp` as a custom connector or remote MCP server in the app's settings, if the app supports one. Some organizations require an admin to allow new connectors; if so, tell the user to ask their admin.
+   - **Docs:** first check the user's installed connectors for an existing Sinch docs connector (for example "Sinch Build Docs"). If it is there but not connected, ask the user to connect it. Otherwise have the user add `https://developers.sinch.com/mcp` as a custom connector or remote MCP server in the app's settings, if the app supports one. Some organizations require an admin to allow new connectors; if so, tell the user to ask their admin.
    - **Skills:** if the app lets users add skills in its settings, have the user add the Sinch skills from the `sinch/skills` repository there. Describe where to find that setting only if you know your app's settings; otherwise say it is in the app's settings and let the user look.
    - **Or carry on without either:** you can still read this skill and fetch the docs, so setup is not required to continue.
 3. **Neither.** Continue without tooling. You can still read the Sinch docs as Markdown from https://developers.sinch.com/llms.txt if you can fetch URLs.
@@ -214,21 +209,11 @@ Ask the user to open https://dashboard.sinch.com/settings/access-keys and create
 
 Keep the Key Secret out of chat. Have the user type the values in themselves. Where they go depends on what will call Sinch, and many users need both:
 
-**For the Sinch CLI and the agent's own terminal commands.** With the CLI from step 1, ask the user to run this in their own terminal; it prompts for the three values and keeps the secret in the OS keychain:
-
-```bash
-sinch auth login
-```
+**For the Sinch CLI and the agent's own terminal commands.** With the CLI from step 1, ask the user to run `sinch auth login` in their own terminal; it prompts for the three values and keeps the secret in the OS keychain.
 
 The keychain is only for the CLI. Code the user builds cannot read it.
 
-**For code the user builds, and for curl.** The app reads the key from its environment. Have the user add these to a `.env` file that is git-ignored, or export them in their own terminal; when the app is deployed, use the host's secret store instead:
-
-```bash
-export SINCH_PROJECT_ID="your-project-id"
-export SINCH_KEY_ID="your-key-id"
-export SINCH_KEY_SECRET="your-key-secret"
-```
+**For code the user builds, and for curl.** The app reads the key from its environment. Have the user set `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, and `SINCH_KEY_SECRET` in a `.env` file that is git-ignored, or export them in their own terminal; when the app is deployed, use the host's secret store instead.
 
 Before they write a `.env` file, check that `.gitignore` covers it, and add the entry if it does not.
 
@@ -239,18 +224,7 @@ Voice API v1 and Verification use a separate application key and secret, not the
 Make one read-only call to prove the access key works. It sends the access key only to Sinch's token endpoint, `auth.sinch.com`, to get a token; no message is sent and nothing is billed. Tell the user this before running it.
 
 - **CLI route:** run `sinch auth status`.
-- **Environment-variable route:** exchange the key for an OAuth2 token, as described in `sinch-authentication`, and confirm a token comes back. Check the variables exist without printing them:
-
-```bash
-test -n "$SINCH_PROJECT_ID" && test -n "$SINCH_KEY_ID" && test -n "$SINCH_KEY_SECRET" && echo "credentials present"
-```
-
-```bash
-curl -s -o /dev/null -w "%{http_code}\n" -X POST \
-  https://auth.sinch.com/oauth2/token \
-  -u "$SINCH_KEY_ID:$SINCH_KEY_SECRET" \
-  -d grant_type=client_credentials
-```
+- **Environment-variable route:** exchange the key for an OAuth2 token, as described in `sinch-authentication`, and confirm a token comes back. First check each of the three variables is set without printing it, for example `test -n "$SINCH_KEY_SECRET"`. Then request a token and print only the HTTP status: `curl -s -o /dev/null -w "%{http_code}" -u "$SINCH_KEY_ID:$SINCH_KEY_SECRET" -d grant_type=client_credentials https://auth.sinch.com/oauth2/token`.
 
 `200` means the key is valid. `401` means the Key ID or Key Secret is wrong (often a stray space, or a secret from a different key): ask the user to re-enter it or create a new key. Do not retry more than once without a change from the user.
 
