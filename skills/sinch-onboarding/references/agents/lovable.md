@@ -37,6 +37,7 @@ Check, in order: the launcher prompt, the chat history, the app's config. Asking
 ## How to talk to the user
 
 - Whenever the user must act outside the chat (save keys, verify a number, text from their phone, upgrade in the dashboard), you need their go-ahead (anything that costs money or cannot be undone), or a phase ends, stop and ask with your structured question tool (the clickable multiple-choice card). Do not end a turn with "let me know when ready", "reply X when done", or "want me to…?".
+- Links must be clickable. Put every URL the step needs in your message text before the card, in full with `https://` and as a markdown link; a URL inside the card may not be clickable. Never write a bare `dashboard.sinch.com/...`.
 - Put the full instructions inside the question (where to click, what to look for), then the checkpoint's options from the product guide. Adapt the wording; keep the options. Always include "I'm stuck / need help with this step".
 - One question card at a time, so each answer can be checked before the next.
 - After each answer, verify it (check secret storage, call the API, read the messages table). If the check fails, say what you found in plain words and ask again.
@@ -62,7 +63,7 @@ The user may not be technical. Explain a term in the same sentence the first tim
 
 ## Credentials
 
-**Access key checkpoint.** Open the secret storage form for `SINCH_KEY_ID` and `SINCH_KEY_SECRET`, then ask. Inside the question, say where to find them ({{DASHBOARD_URL}} → Settings → Access keys; the secret is shown only once, so a lost secret means a new key). Options: "I saved both keys" | "Help me find Access Keys in the dashboard" | "I lost the secret, help me make a new key" | "I'm stuck". Then check both secrets exist without showing their values, and run the guide's first read-only call.
+**Access key checkpoint.** Open the secret storage form for `SINCH_KEY_ID` and `SINCH_KEY_SECRET`, then ask. Say where to find them, with {{DASHBOARD_URL}} as a markdown link in the message text (→ Settings → Access keys; the secret is shown only once, so a lost secret means a new key). Options: "I saved both keys" | "Help me find Access Keys in the dashboard" | "I lost the secret, help me make a new key" | "I'm stuck". Then check both secrets exist without showing their values, and run the guide's first read-only call.
 
 - Every Sinch call runs in a backend function with the access key. Never put the secret in frontend code, chat replies, logs, or the database.
 - Backend functions may not run the Sinch Node.js SDK; call the REST API with `fetch` unless the SDK is confirmed to work there. Authenticate per the `sinch-authentication` skill.

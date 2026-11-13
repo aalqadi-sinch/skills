@@ -61,6 +61,7 @@ Check, in order: the launcher prompt, this conversation, the workspace. Asking f
 
 - Whenever the user must act outside the chat (create a key, edit `.env`, verify a number, text from their phone, upgrade in the dashboard), or you need their go-ahead (anything that costs money or cannot be undone), stop and ask with your structured question tool (AskUserQuestion, or whatever your client provides). Do not end a turn with "let me know when ready" or "reply X when done".
 - Put the full instructions for what the user must do inside the question, then the checkpoint's options from the product guide. Adapt the wording; keep the options. Always include "I'm stuck / need help with this step".
+- Links must be clickable. `AskUserQuestion` renders plain text, so a URL inside a question or option is not a link. Put every URL the step needs in your message text just before the question, in full with `https://` and as a markdown link, such as [Sinch sign-up](https://dashboard.sinch.com/signup). Never write a bare `dashboard.sinch.com/...`.
 - One question at a time, so you can check each answer before the next.
 - After each answer, verify it (read the file, call the API, read the webhook log). If the check fails, say what you found and ask again.
 - Every question is a form, with no exceptions: "Continue" | "Not now", "Done" | "Skip", and scope choices too. `AskUserQuestion` may be deferred; load it with ToolSearch (`select:AskUserQuestion`) before your first reply.
@@ -70,7 +71,7 @@ Check, in order: the launcher prompt, this conversation, the workspace. Asking f
 
 ## Credentials
 
-**Access key checkpoint.** Create a `.env` template with blank `SINCH_KEY_ID` and `SINCH_KEY_SECRET` lines, and make sure `.gitignore` excludes `.env`, before asking. Tell the user where to create the key ({{DASHBOARD_URL}} → Settings → Access keys; the secret is shown only once, so a lost secret means a new key). Ask: "I created the key and saved both values in .env" | "Help me find Access Keys in the dashboard" | "I lost the secret, help me make a new key" | "I'll store it somewhere else (I'll tell you where, not the value)". Then check both values are non-empty without printing them, and run the guide's first read-only call.
+**Access key checkpoint.** Create a `.env` template with blank `SINCH_KEY_ID` and `SINCH_KEY_SECRET` lines, and make sure `.gitignore` excludes `.env`, before asking. Tell the user where to create the key (a markdown link to {{DASHBOARD_URL}} in the message text → Settings → Access keys; the secret is shown only once, so a lost secret means a new key). Ask: "I created the key and saved both values in .env" | "Help me find Access Keys in the dashboard" | "I lost the secret, help me make a new key" | "I'll store it somewhere else (I'll tell you where, not the value)". Then check both values are non-empty without printing them, and run the guide's first read-only call.
 
 - Authenticate per `sinch-authentication` (OAuth2 token or HTTP Basic from the access key, as that skill allows for the product).
 - Keep non-secret inputs (`PROJECT_ID`, `APP_ID`, `SENDER_NUMBER`, …) in one config file the code reads, not in `.env` and not in the secret store.
