@@ -65,6 +65,7 @@ People would rather pick an option or fill in a field than read a wall of text. 
 |------|--------|
 | 1 | Install the Sinch CLI? Yes / No |
 | 2 | How to add Sinch skills: Sinch CLI / My skills manager (skills.sh, Tessl, …) / Plugin / Skip (only show the routes that apply) |
+| 2, 3 | Where to install: This project only / All my projects (global). Ask once, before the first install, and reuse the answer for the skills and the Docs MCP server |
 | 4 | Do you have a Sinch account? Yes / No / I want to try Sinch first / Not sure |
 | 5 | What will call Sinch: The Sinch CLI / Code I'm building / Both (sets where the key goes) |
 | 5 | Confirm when done: "I've created the key" / "I need help" |
@@ -90,7 +91,7 @@ Do not ask whether the user has a Sinch account until step 4. Steps 1 to 3 need 
 
 | Operation | Class | Rule |
 |-----------|-------|------|
-| Installing the CLI, `sinch skills install`, adding an MCP server | Reversible, local | Show the command and say what it changes; run it when the user has asked you to set things up |
+| Installing the CLI, `sinch skills install`, adding an MCP server | Reversible, local | Ask where to install first (see [Choose where to install](#choose-where-to-install)). Then show the command and say what it changes; run it when the user has asked you to set things up |
 | Installing skills with the user's skills manager (fallback) | Reversible, local | Do not run it. Name the source (`sinch/skills`) and where the skills will go; the user runs their own tool in their own terminal |
 | Requesting an OAuth2 token, listing apps or numbers | Read-only | Run freely once credentials exist |
 | Sending a message, placing a call | Billable | Explicit approval for each send, with recipient and text shown |
@@ -116,6 +117,15 @@ Only when all four fail, say the skill is missing and use this skill's fallback.
 
 The flow is seven steps: set up the agent (steps 1 to 3), then the account and key (steps 4 to 6), then a first goal (step 7). Skip any step the detection above shows is done.
 
+### Choose where to install
+
+Before installing the skills at step 2 or adding the Docs MCP server at step 3, ask the user where they should go. Never pick the scope yourself, even when other Sinch skills are already installed globally or the user just said "install":
+
+- **This project only**: the skills go in the project's skills folder (for example `.claude/skills/` in Claude Code) and the MCP server in the project's or the local configuration. Nothing changes outside this folder. Suggest it for test or throwaway folders.
+- **All my projects (global)**: the skills go in the agent's user-level skills folder (for example `~/.claude/skills/`) and the MCP server in the user configuration. Every project on the machine sees them.
+
+Ask once and use the same answer for steps 2 and 3. When you report the result, name the folder or configuration you wrote to. The CLI at step 1 is a global npm install either way; this question does not apply to it.
+
 ### Step 1: Install the Sinch CLI [AGENT]
 
 The CLI gives the agent terminal commands for numbers, messaging, voice and more, installs the Sinch skills at step 2, and stores the access key in the OS keychain at step 5. It needs Node.js 20 or later. Skip this step if `sinch --version` already works. Otherwise load `sinch-cli`, run `npm install -g @sinch/cli`, then confirm with `sinch --version`.
@@ -126,9 +136,9 @@ If the user does not want the CLI, skip this step; step 2 then uses the user's s
 
 Skills are briefs like this one, one per Sinch product, published from https://github.com/sinch/skills. Skip this step if the detection found them, or a Sinch plugin, already installed. Otherwise use the first route that applies:
 
-**With the CLI from step 1** [AGENT]. Tell the user it installs all Sinch skills globally for their agents, then run `sinch skills install --all`.
+**With the CLI from step 1** [AGENT]. Use the scope from [Choose where to install](#choose-where-to-install). For this project only, run `sinch skills install --all --project` from the project folder. For all projects, run `sinch skills install --all`, which installs globally for every agent.
 
-**Without the CLI: the user's skills manager** [USER]. Use the skills manager the user already trusts, such as the `skills` tool from skills.sh, Tessl, or their agent's own skill or plugin manager. Ask which one they use, then tell them to install from the Sinch skills repository, `sinch/skills` (https://github.com/sinch/skills); the repository also publishes a Tessl tile under that name. Their tool downloads the skills and writes them into the agent's skills folder, so the user runs it, not you. Do not write the install command for them from memory; their tool's own help or docs gives the exact syntax. Ask them to tell you when it is done.
+**Without the CLI: the user's skills manager** [USER]. Use the skills manager the user already trusts, such as the `skills` tool from skills.sh, Tessl, or their agent's own skill or plugin manager. Ask which one they use, then tell them to install, at the scope they chose, from the Sinch skills repository, `sinch/skills` (https://github.com/sinch/skills); the repository also publishes a Tessl tile under that name. Their tool downloads the skills and writes them into the agent's skills folder, so the user runs it, not you. Do not write the install command for them from memory; their tool's own help or docs gives the exact syntax. Ask them to tell you when it is done.
 
 If they have no skills manager, offer the plugin route below, or point them to https://skills.sh/?q=Sinch, which lists the Sinch skills and how to install them.
 
@@ -146,7 +156,7 @@ The Docs MCP server lets the agent search the Sinch docs and read API definition
 https://developers.sinch.com/mcp
 ```
 
-Add it with the agent's own MCP configuration. In Claude Code, run `claude mcp add --transport http sinch-docs https://developers.sinch.com/mcp`. Other examples:
+Add it with the agent's own MCP configuration, at the scope from [Choose where to install](#choose-where-to-install). In Claude Code, run `claude mcp add --transport http --scope <scope> sinch-docs https://developers.sinch.com/mcp`, with `--scope local` (this project, private to the user), `--scope project` (this project, shared through `.mcp.json`), or `--scope user` (all projects). Always pass `--scope` so the choice is explicit. Other examples, both project-level (for all projects, use the agent's user-level MCP configuration):
 
 VS Code, in `.vscode/mcp.json`:
 
@@ -277,6 +287,7 @@ Install the CLI at step 1 and use `sinch auth login` at step 5, since it keeps s
 - **Key Secret is shown once.** If it is lost, create a new access key; it cannot be recovered.
 - **Access key versus application key.** Using an access key against Voice API v1 or Verification fails with 401. They need an application key.
 - **Mailgun is separate.** A Sinch dashboard account does not create a Mailgun account or API key.
+- **Install scope is the user's call.** "Install the skills" does not mean "install them globally". Existing global Sinch skills are not a reason to add more there; ask, then name where you installed.
 - **Skills or plugin, not both.** Installing both the Sinch plugin and the skills from `sinch/skills` duplicates them.
 - **MCP servers load at start-up.** After adding `sinch-docs`, the agent may not see it until restarted.
 - **Sign-up and testing live in `sinch-onboarding`.** Do not rebuild its trial phases here; hand off instead.
