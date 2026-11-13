@@ -23,11 +23,14 @@ When `ACCOUNT_STATUS` is `trial`, also say how many days are left (`DAYS_LEFT`),
 
 ## Trial rules (phases 1–5)
 
-- Send only from the trial number (`SENDER_NUMBER`), and only to numbers in `VERIFIED_DESTINATIONS`.
+- Send only from the trial number (`SENDER_NUMBER`), and only to numbers in `VERIFIED_DESTINATIONS`. A trial account can only send to verified numbers: numbers the user owns and has verified in the dashboard under [Numbers > Verified numbers](https://dashboard.sinch.com/numbers/verified-numbers) (see [SMS troubleshooting](https://developers.sinch.com/docs/sms/api-reference/troubleshooting.md)). The phone number the user signed up with is verified automatically ([account status](https://developers.sinch.com/docs/voice-2.0/accounts.md)). Every test message and every inbound reply in phases 2 to 5 is therefore between Sinch and the user's own phones.
+- Before each send, check the destination is in `VERIFIED_DESTINATIONS`. Never ask the user to verify a number they do not own.
 - Do not buy numbers or submit registrations on a trial; those calls fail.
 - Never let the user think a trial number can message the general public.
 
 ## Phase 1 — Connect your account (read-only)
+
+This phase needs a Sinch account. If the user has none, run step 0 (account and sign-up) in [SKILL.md](../../SKILL.md) first, then start here.
 
 1. Summarize what is already known, in three lines: who the user sends from, who they can send to, and when the trial ends. Mark a value that is not known yet as "found after we connect" (sender) or "asked at the end of this phase" (verified numbers) rather than asking for it now.
 2. Run the adapter's **access key** checkpoint.
@@ -57,13 +60,14 @@ Ask: "I verified it, retry the send" | "Show me how to upgrade" | "Cancel".
 
 Before starting, say what it unlocks: "Once the webhook is set up, you can text back from your phone and see the reply arrive."
 
-1. Stand up a public HTTPS endpoint that accepts POST and returns 200 quickly, where the adapter says webhooks run.
-2. List the webhooks already in the project and report any that also receive inbound messages; they may double-handle STOP. Ask **Existing webhooks**: "Leave them" | "Update it to point here" | "Delete {{id}}" (one option per webhook; confirm again before deleting — destructive).
-3. Register the webhook for the app with triggers for inbound messages and delivery receipts (`MESSAGE_INBOUND`, `MESSAGE_DELIVERY`, and `EVENT_INBOUND` if available — confirm names against the callbacks doc). Observed: the project-level webhooks route works where an app-scoped route returned 501; confirm the route in the canonical reference. Owner: `sinch-conversation-api`.
-4. Generate a random webhook secret, store it in the adapter's secret store, and verify the signature on every callback. Reject unsigned or mis-signed requests, and prove it by sending one unsigned POST and showing it is rejected. Owner: `sinch-conversation-api`.
-5. Ask **Reply test**: tell the user to reply to the test text from their phone, then "I sent a reply" | "I didn't get the original text" | "I'm stuck". After "I sent a reply", show what arrived (sender, body, timestamp, contact ID) and the delivery receipt from Phase 2 before asking anything else. If nothing arrived: "Check again" | "Help me troubleshoot" | "I'm stuck".
-6. If the webhook does not fire, check the registration, that the endpoint is reachable, and that it returns 200, before changing anything else.
-7. End the phase. Ask **Phase 3 → 4**: "Handle STOP and HELP" | "Send another test first" | "Not now".
+1. Tell the user what the webhook receives: Sinch callbacks carry message content and contact details such as phone numbers ([callbacks](https://developers.sinch.com/docs/conversation/callbacks.md)). On the trial these come only from the user's own verified phones. Before going live, the user must tell the people who text their number how their messages are handled and stored, and the webhook should keep only the fields the app needs. Do not point the webhook at a public test service such as a request bin; it would expose that data.
+2. Stand up a public HTTPS endpoint that accepts POST and returns 200 quickly, where the adapter says webhooks run.
+3. List the webhooks already in the project and report any that also receive inbound messages; they may double-handle STOP. Ask **Existing webhooks**: "Leave them" | "Update it to point here" | "Delete {{id}}" (one option per webhook; confirm again before deleting — destructive).
+4. Register the webhook for the app with triggers for inbound messages and delivery receipts (`MESSAGE_INBOUND`, `MESSAGE_DELIVERY`, and `EVENT_INBOUND` if available — confirm names against the callbacks doc). Observed: the project-level webhooks route works where an app-scoped route returned 501; confirm the route in the canonical reference. Owner: `sinch-conversation-api`.
+5. Generate a random webhook secret, store it in the adapter's secret store, and verify the signature on every callback. Reject unsigned or mis-signed requests, and prove it by sending one unsigned POST and showing it is rejected. Owner: `sinch-conversation-api`.
+6. Ask **Reply test**: tell the user to reply to the test text from their phone, then "I sent a reply" | "I didn't get the original text" | "I'm stuck". After "I sent a reply", show what arrived (sender, body, timestamp, contact ID) and the delivery receipt from Phase 2 before asking anything else. If nothing arrived: "Check again" | "Help me troubleshoot" | "I'm stuck".
+7. If the webhook does not fire, check the registration, that the endpoint is reachable, and that it returns 200, before changing anything else.
+8. End the phase. Ask **Phase 3 → 4**: "Handle STOP and HELP" | "Send another test first" | "Not now".
 
 ## Phase 4 — Handle STOP and HELP (required for US)
 
@@ -101,7 +105,7 @@ Then explain what going live requires (Phases 6–8) before the user spends anyt
 
 Owner: `sinch-10dlc`. Load it now and fetch its canonical pages before building any request.
 
-1. Collect all business information in one pass before any call. Multiple-choice fields go through the question tool (legal entity type, vertical, campaign use case, monthly volume range, whether texts contain links, phone numbers, or promotions). Free-text fields go in one chat message as a fill-in list: legal company name, brand or DBA name, EIN and issuing country, registered address, website, support email and phone, how people opt in and where carriers can see it, sample messages, HELP and STOP replies.
+1. Before collecting anything, tell the user that these business details (including the EIN, address, and contact details) are sent to Sinch and to the US carriers' registry to review the registration. Then collect all business information in one pass before any call. Multiple-choice fields go through the question tool (legal entity type, vertical, campaign use case, monthly volume range, whether texts contain links, phone numbers, or promotions). Free-text fields go in one chat message as a fill-in list: legal company name, brand or DBA name, EIN and issuing country, registered address, website, support email and phone, how people opt in and where carriers can see it, sample messages, HELP and STOP replies.
 2. Draft the carrier-facing text (use case description, opt-in description, samples). Ask **Carrier text approval**: "Looks good, save it" | "Edit something first" | "Explain what carriers check".
 3. Show the full brand summary. Ask **Submit brand** with the confirmed fee: "Submit brand ({{brand fee}}, non-refundable)" | "Edit something first". Then submit the campaign the same way. Campaigns cannot be edited after submission.
 4. Approval takes time. Poll brand and campaign status with a bounded loop (backoff, jitter, cap), and use status callbacks only if `sinch-10dlc`'s canonical docs show them. Do not resubmit while pending. Ask **Waiting on carriers**: "Check the status now" | "What happens while I wait?".
@@ -118,7 +122,7 @@ Owner: `sinch-10dlc`. Load it now and fetch its canonical pages before building 
 
 ## Shared checkpoints
 
-- **Before any paid call** — state the item and its confirmed cost inside the question: "Yes, spend it" | "Skip this step" | "Explain the cost first". Proceed only on "Yes, spend it".
+- **Before any paid call** — state the item, its confirmed cost, and what it sends to Sinch (for a message: the recipient number and the text, which also pass through the carriers) inside the question: "Yes, spend it" | "Skip this step" | "Explain the cost first". Proceed only on "Yes, spend it".
 - Every checkpoint also offers "I'm stuck / need help with this step".
 
 ## Done when

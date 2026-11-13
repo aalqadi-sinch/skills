@@ -1,6 +1,6 @@
 ---
 name: sinch-onboarding
-description: "Guided, phase-by-phase Sinch onboarding from free trial to a live sender, driven by a short launcher prompt that supplies the user's account data and points to an agent entry file (Claude Code or Lovable). Use when the user is new to Sinch, is on a Sinch free trial, asks how to get started, wants to send a first SMS in the US or another country, go from trial to production, or needs a launcher prompt for Claude Code or Lovable. Routes by product from the launcher data or the conversation; SMS (US and global) has a guide today, other products are listed as planned. For API details outside onboarding, use the product skill such as sinch-sms or sinch-10dlc."
+description: "Sign-up and guided testing for Sinch: takes a user with no account, or one on a free trial, through creating an account, a first access key, and phase-by-phase tests up to a live sender. Can start from a short launcher prompt that carries the user's account data (Claude Code or Lovable). Use when the user has no Sinch account, wants to sign up, wants to try or test Sinch, says 'help me onboard to Sinch', is on a Sinch free trial, wants to send a first test SMS in the US or another country, wants to go from trial to production, or pastes a launcher prompt. SMS (US and global) has a guide today; other products are planned. Connecting the agent itself (CLI, skills, Docs MCP) belongs to sinch-get-started; for API details outside onboarding, use the product skill such as sinch-sms or sinch-10dlc."
 metadata:
   author: Sinch
   version: 1.0.0
@@ -22,7 +22,7 @@ metadata:
 
 ## Overview
 
-Prompt-driven onboarding that takes a new customer from an empty trial account to a live sender, one phase at a time. A short **launcher prompt** carries the user's data (project ID, balance, trial dates, sender) and points to an **agent entry file**; the entry file loads the **product/region guide** with the phases and checkpoints. This skill orchestrates; the product skills it names own the API details.
+Sign-up and guided testing for Sinch. It takes a user from no account, through sign-up and a first access key, then from an empty trial account to a live sender, one phase at a time. It complements `sinch-get-started`: that skill connects the agent (CLI, skills, Docs MCP) and hands off here when the user has no account or wants to try Sinch; this skill sends agent setup back to it. A short **launcher prompt** carries the user's data (project ID, balance, trial dates, sender) and points to an **agent entry file**; the entry file loads the **product/region guide** with the phases and checkpoints. This skill orchestrates; the product skills it names own the API details.
 
 ## Agent Instructions
 
@@ -43,7 +43,19 @@ Prompt-driven onboarding that takes a new customer from an empty trial account t
 10. Load only the smallest skill set that owns the behavior; if a required skill is unavailable, name it and stop rather than improvising its instructions.
 <!-- sinch-policy-digest: end -->
 
-Route every request through three choices, in order: product, region, then agent. Then load `references/inputs.md`, the guide, and the entry file, and follow the entry file from top to bottom.
+Settle the account first, then route every request through three choices, in order: product, region, then agent. Then load `references/inputs.md`, the guide, and the entry file, and follow the entry file from top to bottom.
+
+### 0. Account
+
+Decide whether the user has a Sinch account before anything else:
+
+- **Known yes:** the launcher prompt has a `PROJECT_ID`, credentials already work, or `sinch-get-started` handed off with an existing account. Go to the product router.
+- **Known no:** `sinch-get-started` handed off because the user has no account, or the user says so. Go to sign-up.
+- **Unknown:** ask with the question tool: "I have a Sinch account" | "I need to sign up" | "Not sure" | "I'm stuck". On "Not sure", ask the user to try signing in at https://dashboard.sinch.com.
+
+**Sign-up [USER].** Sinch accounts are created in the browser; there is no API or CLI command that creates one. Ask the user to open https://dashboard.sinch.com/signup, sign up with a work email, follow the prompts until they land on the dashboard, then answer: "I'm in the dashboard" | "I'm stuck". Do not automate sign-up, solve verification steps, or enter details on the user's behalf. A new account starts on a free trial: set `ACCOUNT_STATUS` to `trial`, and ask the user to read the trial end date and credit balance from the dashboard when a phase needs them. The entry file's access key checkpoint, in Phase 1, then creates and stores the first access key.
+
+**Agent not set up.** If the agent has no Sinch skills and no Docs MCP server, and `sinch-get-started` is installed, run its steps 1 to 3 first, then come back here. Skip this when `sinch-get-started` handed off, or when the user is in Lovable.
 
 ### 1. Product router
 
@@ -137,12 +149,15 @@ The launcher's skill URL decides where the files come from. Point it at a fork o
 - **Entry file (agent adapter)** — how one tool talks to the user and handles secrets and webhooks: `.env` and a tunnel for Claude Code; secret storage and backend functions for Lovable.
 - **Product/region guide** — the phases, the checkpoints with their answer options, and the order of steps. Shared by every agent.
 - **Checkpoint** — a stop where the user acts or approves, asked with the agent's structured question tool, with fixed options and always an "I'm stuck" option. Answers are verified before moving on.
+- **Data sent to Sinch** — every API call sends project data to Sinch, and a test message also sends the recipient number and text through the carriers. The **Before any paid call** checkpoint names what is sent.
 - **Done means delivered** — a 2xx from the send call means accepted. A phase that sends finishes on a delivery receipt or the user's confirmation.
 
 ## Common Patterns
 
 - **New trial user in Claude Code** — the user pastes the Claude Code launcher. Follow claude-code.md: map the data, show the phases, run the access key checkpoint, prove credentials with a read-only call, then Phase 2.
 - **Returning user mid-onboarding** — skip to the first phase whose done-items are not met. Verify earlier phases with read-only calls instead of redoing them.
+- **Handed off from `sinch-get-started`** — the agent is already set up. Use what it reports (CLI, skills, Docs MCP, or plugin route) instead of asking again, settle the account in step 0, and route.
+- **No account yet** — sign up in step 0, then route; the new trial account starts at Phase 1.
 - **Lovable user asking you for help** — build the Lovable launcher from what the user knows and give it to them to paste. You do not run Lovable's code; say so.
 
 ## Gotchas and Best Practices

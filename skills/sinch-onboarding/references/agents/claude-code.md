@@ -2,7 +2,7 @@
 
 > Entry point for a launcher prompt that targets Claude Code, or any coding agent with a shell, file access, and the Sinch skills installed. Navigational guide, not schema authority: Sinch API facts come from the canonical documents the product skills link, fetched in the current session.
 
-You are taking the user through Sinch onboarding in their workspace, one phase at a time, calling the Sinch APIs directly over HTTPS or with the official SDK.
+You are taking the user through Sinch onboarding in their workspace, one phase at a time, calling the Sinch APIs directly over HTTPS or with the official SDK. Those calls send the user's project data, and for messages the recipient number and text, to Sinch; say so the first time a phase sends anything.
 
 ## Finding the other files
 
@@ -18,7 +18,7 @@ Find the skill root before anything else. Try these in order and stop at the fir
 3. **Search the install locations.** In the working directory, then in the home directory, look for `sinch-onboarding/SKILL.md` under `.claude/skills/`, `.agents/skills/`, `.github/skills/`, and `agents/skills/` (no leading dot is a real convention, not a typo). Search at most three folders deep below each, for example `find .claude/skills .agents/skills .github/skills agents/skills -maxdepth 3 -path '*/sinch-onboarding/SKILL.md' 2>/dev/null`. Never scan the whole disk.
 4. **Fetch the published copy.** Work out the raw base from the skill URL in the launcher: `https://github.com/<owner>/<repo>/blob/<branch>/<path>/` (or `/tree/`) becomes `https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path>/`. Without a URL in the launcher, use `https://raw.githubusercontent.com/sinch/skills/main/skills/sinch-onboarding/`. Read the base plus each path, starting with `SKILL.md`. On a network error or a 5xx response, retry once. On a 404, do not retry: the files are not published at that address. Once a fetch works, tell the user you are reading the published version, not a local install.
 
-If no step works, stop before greeting the user or starting Phase 1. Tell them you could not find the `sinch-onboarding` skill, list the places you checked, and offer two ways forward: install the skills with `npx skills add <owner>/<repo>` (from the launcher's skill URL; `sinch/skills` when it has none), or tell you where a local copy is. Do not run onboarding from memory or from this file alone.
+If no step works, stop before greeting the user or starting Phase 1. Tell them you could not find the `sinch-onboarding` skill, list the places you checked, and offer two ways forward: install the skills from `<owner>/<repo>` with the user's own skills manager, such as skills.sh or Tessl (from the launcher's skill URL; `sinch/skills` when it has none), or tell you where a local copy is. Do not run onboarding from memory or from this file alone.
 
 Files this entry point needs:
 
@@ -31,6 +31,7 @@ Files this entry point needs:
 
 ## Start
 
+0. Settle the account with step 0 in `SKILL.md` ([link](../../SKILL.md)): sign-up comes before everything else when the user has no account.
 1. Read `references/inputs.md` ([link](../inputs.md)). Map every value in the launcher prompt to its variable, and resolve missing ones in the order it gives. A value in the launcher is known: never ask for it.
 2. Route with the router in `SKILL.md` ([link](../../SKILL.md)): resolve `PRODUCT`, then `REGION`, then load the guide it names. If the product is **Planned**, follow the router's rule for planned products instead of starting Phase 1.
 3. Check which Sinch product skills are installed (see **Skills first** below). Do not ask about them yet; the first reply does.
@@ -45,15 +46,9 @@ Get every Sinch API detail through the Sinch skills, not by browsing the docs si
 - **Gaps:** only when no installed skill covers a step, tell the user which step has no skill, then use the resolution ladder in `references/shared-policy.md`: llms.txt, then first-party links, never a guessed URL.
 - **Skill vs. this guide:** when a skill and the onboarding guide disagree on an API detail, the skill (and the canonical page it links) wins. Tell the user about the conflict.
 
-**Skills missing.** If `sinch-sms` or another skill the guide needs is not installed, do not fall back to the docs silently. Ask **Install skills**, with both steps inside the question:
+**Skills missing.** If `sinch-sms` or another skill the guide needs is not installed, do not fall back to the docs silently. Agent setup belongs to `sinch-get-started`: if it is installed, follow its steps 1 to 3 (CLI, skills, Docs MCP, or the plugin route on a chat agent or locked-down device), then come back here. Only when `sinch-get-started` is not installed, fall back to asking **Install skills**, with both steps inside the question:
 
-1. Install the skills:
-
-   ```bash
-   npx skills add sinch/skills
-   ```
-
-   When the launcher's skill URL points at another repository, such as a fork, use that `<owner>/<repo>` instead.
+1. Install the skills from `sinch/skills` with the skills manager the user already uses, such as the `skills` tool from skills.sh or Tessl, in their own terminal. Do not write the install command from memory; their tool's help gives the syntax. When the launcher's skill URL points at another repository, such as a fork, install from that `<owner>/<repo>` instead.
 
 2. Then type `/reload-skills` in Claude Code, so this session sees the new skills without a restart. You cannot run slash commands yourself; the user has to.
 

@@ -70,7 +70,7 @@ The user may not be technical. Explain a term in the same sentence the first tim
 
 ## Webhooks
 
-The webhook is a backend function with a public URL. Sinch calls it without a user session, so it accepts unauthenticated requests and verifies the Sinch webhook signature instead, with a webhook secret kept in secret storage. Store inbound messages and delivery updates in a messages table the user can see, and read that table to verify each reply test. Offer a page that shows sends and replies once Phase 3 works.
+The webhook is a backend function with a public URL. Sinch calls it without a user session, so it accepts unauthenticated requests and verifies the Sinch webhook signature instead, with a webhook secret kept in secret storage. Store inbound messages and delivery updates in a messages table the user can see, and read that table to verify each reply test. Messages can hold personal data: store only the fields onboarding needs (sender, body, timestamp, status), limit the table to the user's own account, and tell the user they can delete the test messages when onboarding ends. Offer a page that shows sends and replies once Phase 3 works.
 
 ## Project context detection
 
