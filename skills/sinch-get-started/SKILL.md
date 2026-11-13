@@ -56,6 +56,16 @@ Show what to do, not what cannot be done. The detection and routing in this skil
 - Do not mention this skill or quote its rules ("the skill says…"). Speak as yourself.
 - Present setup as a short list of actions with their links or values, then one question. For example: "Two quick steps to connect me to Sinch: 1. Add the Sinch Docs connector: `https://developers.sinch.com/mcp`. 2. Add the Sinch skills from `github.com/sinch/skills`." Then ask "Done" | "Skip for now" | "Help me find the setting".
 - Add a caveat (an admin approval, a restart) only where the user will hit it, in a few words.
+- Name the app you are running in when you give app steps, for example "In Claude, open Customize → Connectors". Never write "your agent" or "the app's settings" and leave the user to work out which app and where.
+
+### Business users and other non-developers
+
+Treat the user as a non-developer if they say so ("I'm a business user", "I don't code"), if you are a chat app with no terminal, or if their replies suggest it. For them:
+
+- **Keep setup to what helps them.** In a chat app, follow [references/hosts/chat-apps.md](references/hosts/chat-apps.md). In a coding agent that has a Sinch plugin, offer the plugin as the one setup step instead of the CLI and skills. Otherwise skip the CLI and skills offers (steps 1 and 2), and offer the docs connector (step 3) only as one optional step where you know the exact clicks.
+- **Use plain words.** Do not say MCP, CLI, connector, remote server, repository, environment variable, or OAuth to them. Say "the Sinch docs" or "a link to the Sinch docs in your settings", "the Sinch command-line tool", "the place your app keeps secrets". If a technical term is unavoidable, explain it in the same sentence.
+- **One step per message**, with the exact place to click and a "Done" | "I'm stuck" choice. When they are stuck, give the next smaller step, not more background.
+- **At step 5**, follow [Step 5 for non-developers](#step-5-for-non-developers).
 
 ### Ask with options, not paragraphs
 
@@ -86,6 +96,29 @@ Set up the agent first, then ask about the account. Before step 1, look at what 
 5. **Goal**: did the user already say what they want to build? If not, ask at step 7.
 
 Do not ask whether the user has a Sinch account until step 4. Steps 1 to 3 need no account.
+
+### Host steps
+
+Once you know the host, read its file before step 1. It says which Sinch plugin exists for that host and what it bundles, how to install it and at what scope, and where the access key goes at step 5. Where it differs from the generic steps below, the host file wins.
+
+| Host | File |
+|------|------|
+| Claude Code (CLI, desktop Code tab, IDE extensions) | [references/hosts/claude-code.md](references/hosts/claude-code.md) |
+| Cursor | [references/hosts/cursor.md](references/hosts/cursor.md) |
+| Gemini CLI | [references/hosts/gemini-cli.md](references/hosts/gemini-cli.md) |
+| Antigravity CLI (`agy`) | [references/hosts/antigravity.md](references/hosts/antigravity.md) |
+| OpenAI Codex (CLI, or Codex in the ChatGPT desktop app) | [references/hosts/codex.md](references/hosts/codex.md) |
+| Claude chat (claude.ai, desktop chat, mobile) | [references/hosts/claude-web.md](references/hosts/claude-web.md) |
+| ChatGPT | [references/hosts/chatgpt.md](references/hosts/chatgpt.md) |
+| Gemini app (gemini.google.com, mobile) | [references/hosts/gemini-app.md](references/hosts/gemini-app.md) |
+| Grok (grok.com) and Grok Bot | [references/hosts/grok.md](references/hosts/grok.md) |
+| Lovable | [references/hosts/lovable.md](references/hosts/lovable.md) |
+| Microsoft Copilot, or another chat app | [references/hosts/chat-apps.md](references/hosts/chat-apps.md) |
+
+Every chat app also follows the shared rules in [references/hosts/chat-apps.md](references/hosts/chat-apps.md); read it with the app's own file.
+| Anything else | No host file. Use the generic steps below, and the agent's own docs for its plugin and MCP settings |
+
+The Sinch plugins come from https://github.com/sinch/sinch-plugins. On a host with a plugin, offer it alongside the CLI-and-skills route and let the user choose; it is usually the easier pick for a non-developer.
 
 ### Side effects
 
@@ -142,7 +175,7 @@ Skills are briefs like this one, one per Sinch product, published from https://g
 
 If they have no skills manager, offer the plugin route below, or point them to https://skills.sh/?q=Sinch, which lists the Sinch skills and how to install them.
 
-If the user prefers their agent's plugin system, the Sinch plugins bundle the skills and the Docs MCP server for Claude Code, Cursor, Gemini CLI, OpenAI Codex and others; send them to the section for the agent you are running in at https://github.com/sinch/sinch-plugins, and skip step 3 if the plugin added the Docs MCP server. Use one route, not several, or the skills load twice.
+If the user prefers their agent's plugin, use the plugin route in the [host file](#host-steps), and skip step 3 if the plugin added the Docs MCP server. Use one route, not several, or the skills load twice.
 
 If the user skips skills entirely, go on; this skill still works without them, and the Docs MCP server covers the docs.
 
@@ -156,24 +189,12 @@ The Docs MCP server lets the agent search the Sinch docs and read API definition
 https://developers.sinch.com/mcp
 ```
 
-Add it with the agent's own MCP configuration, at the scope from [Choose where to install](#choose-where-to-install). In Claude Code, run `claude mcp add --transport http --scope <scope> sinch-docs https://developers.sinch.com/mcp`, with `--scope local` (this project, private to the user), `--scope project` (this project, shared through `.mcp.json`), or `--scope user` (all projects). Always pass `--scope` so the choice is explicit. Other examples, both project-level (for all projects, use the agent's user-level MCP configuration):
-
-VS Code, in `.vscode/mcp.json`:
+Add it with the agent's own MCP configuration, at the scope from [Choose where to install](#choose-where-to-install). The [host file](#host-steps) gives the exact command or file for Claude Code, Cursor, Gemini CLI, Antigravity and Codex; each spells the URL field differently. For VS Code, which has no host file, use `.vscode/mcp.json` in the project, or the user-level MCP configuration for all projects:
 
 ```json
 {
   "servers": {
     "sinch-docs": { "type": "http", "url": "https://developers.sinch.com/mcp" }
-  }
-}
-```
-
-Cursor, in `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "sinch-docs": { "url": "https://developers.sinch.com/mcp" }
   }
 }
 ```
@@ -195,14 +216,11 @@ Instead, set the agent up through its own plugin or connector system, which the 
 
 Pick the steps for the host you identified, and show only those. Never suggest a command your host does not support, such as a `/plugin` slash command outside Claude Code.
 
-1. **Coding agent with a plugin system (preferred).** The Sinch plugins bundle the Sinch skills and the Sinch Docs MCP server. Give the user the install steps from your own agent's section of https://github.com/sinch/sinch-plugins. For example, in Claude Code they run `/plugin marketplace add https://github.com/sinch/sinch-plugins.git`, then `/plugin install sinch-claude-plugin`. If you can install plugins yourself from a GitHub repository, offer to install from `sinch/sinch-plugins`, and ask before doing it.
-2. **Chat app without plugins** (for example a browser or desktop chat app). There is no plugin command to give. Instead:
-   - **Docs:** first check the user's installed connectors for an existing Sinch docs connector (for example "Sinch Build Docs"). If it is there but not connected, ask the user to connect it. Otherwise have the user add `https://developers.sinch.com/mcp` as a custom connector or remote MCP server in the app's settings, if the app supports one. Some organizations require an admin to allow new connectors; if so, tell the user to ask their admin.
-   - **Skills:** if the app lets users add skills in its settings, have the user add the Sinch skills from the `sinch/skills` repository there. Describe where to find that setting only if you know your app's settings; otherwise say it is in the app's settings and let the user look.
-   - **Or carry on without either:** you can still read this skill and fetch the docs, so setup is not required to continue.
+1. **Coding agent with a Sinch plugin (preferred).** Use the plugin route in the [host file](#host-steps). If you can install plugins yourself, offer to, and ask before doing it.
+2. **Chat app** (Claude, ChatGPT, Gemini, Grok, Copilot, Lovable and others, in a browser, desktop or phone). There is no Sinch plugin. Follow [references/hosts/chat-apps.md](references/hosts/chat-apps.md) and the app's own [host file](#host-steps): name the app, skip steps 1 and 2, and offer the docs connector only where it gives the exact clicks. Never tell the user to find "a custom connector or remote MCP server" on their own.
 3. **Neither.** Continue without tooling. You can still read the Sinch docs as Markdown from https://developers.sinch.com/llms.txt if you can fetch URLs.
 
-After this route, continue at step 4. At step 5, the CLI and environment-variable options may not exist: have the user store the access key wherever the plugin or app asks for it (its settings or its own secure prompt), never in chat. If you cannot run commands, you cannot do step 6; say so plainly, and treat a working read-only call through the plugin's tools, if it has any, as the check.
+After this route, continue at step 4. At step 5, use [Step 5 for non-developers](#step-5-for-non-developers) unless the plugin has its own secure place for the key; then name that exact place. If you cannot run commands, you cannot do step 6; say so plainly, and treat a working read-only call through the plugin's tools, if it has any, as the check.
 
 ### Step 4: Ask whether the user has a Sinch account [USER]
 
@@ -218,7 +236,15 @@ Find `sinch-onboarding` as described in [Finding another Sinch skill](#finding-a
 
 Ask the user to open https://dashboard.sinch.com/settings/access-keys and create an access key. They will get a **Project ID**, a **Key ID**, and a **Key Secret**. The Key Secret is shown only once; if they lose it, they create a new key.
 
-Keep the Key Secret out of chat. Have the user type the values in themselves. Where they go depends on what will call Sinch, and many users need both:
+In the same message, before they create it, tell them what to do with the key afterwards, so they are never left holding it without a next step:
+
+1. Copy all three values into a password manager or another safe place right away, before closing the page. The Key Secret will not be shown again.
+2. Do not paste the Key Secret into this chat. The Project ID and Key ID are not secret and can be shared.
+3. Then the one concrete place it goes next, from the routes below, with the exact command or setting. Never end step 5 with "store it somewhere safe" and nothing else.
+
+Keep the Key Secret out of chat. Have the user type the values in themselves. Where they go depends on what will call Sinch, and many users need more than one:
+
+**For a Sinch plugin's tools.** If the user took the plugin route, its Build MCP server needs the key in a host-specific place: Claude Code's settings file, `~/.sinch/mcp.env` for Cursor, the extension settings for Gemini CLI, or the terminal environment for Antigravity. The [host file](#host-steps) has the exact steps. The Codex plugin takes no key.
 
 **For the Sinch CLI and the agent's own terminal commands.** With the CLI from step 1, ask the user to run `sinch auth login` in their own terminal; it prompts for the three values and keeps the secret in the OS keychain.
 
@@ -229,6 +255,14 @@ The keychain is only for the CLI. Code the user builds cannot read it.
 Before they write a `.env` file, check that `.gitignore` covers it, and add the entry if it does not.
 
 Voice API v1 and Verification use a separate application key and secret, not the access key. Only set those up if the user's goal needs them; `sinch-authentication` covers where they come from.
+
+#### Step 5 for non-developers
+
+For a business user, or anyone in a chat app with no terminal:
+
+1. Have them save the three values in their password manager, as above. That is all they need to do with the key today.
+2. Tell them plainly: "You don't need to put the key anywhere yet. When we build something that sends messages, I'll show you exactly where it goes in that tool's secret settings." Then go to step 7 and skip step 6, which needs a terminal.
+3. If the user does have a terminal and the Sinch command-line tool is installed, you may instead walk them through `sinch auth login`: tell them how to open a terminal on their system (for example Terminal on macOS), what to paste, and that it will ask for the three values one at a time. Then do step 6.
 
 ### Step 6: Verify the credentials [AGENT]
 
@@ -278,7 +312,7 @@ The user already has an account and keys. Do steps 1 to 3 for the new agent, ans
 
 ### Non-developer user
 
-Install the CLI at step 1 and use `sinch auth login` at step 5, since it keeps secrets out of files. If they then build an app, set up its environment variables together with them. Keep each reply to what happened and the next action. Do not show JSON or code unless they ask.
+Follow [Business users and other non-developers](#business-users-and-other-non-developers): at most one optional setup step, plain words, and [Step 5 for non-developers](#step-5-for-non-developers). If they are on their own machine with a terminal and want the command-line tool, install it at step 1 and walk them through `sinch auth login`. If they later build an app, set up where its key goes together with them. Keep each reply to what happened and the next action. Do not show JSON or code unless they ask.
 
 ## Gotchas and Best Practices
 
