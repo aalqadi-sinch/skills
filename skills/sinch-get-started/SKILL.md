@@ -91,7 +91,7 @@ Set up the agent first, then ask about the account. Before step 1, look at what 
 
 1. **Host**: which agent or app are you running in? You can tell from your own context: your product name, the tools you have, and whether you run on the user's machine or in a hosted sandbox. Give the user only that host's steps; do not list other agents' commands. Ask only if you genuinely cannot tell, and then offer just the likely hosts.
 2. **Environment**: can you run terminal commands at all, and are `node` and `npx` available? If you are a chat agent with no terminal, if your terminal is a hosted sandbox rather than the user's machine, or if the device blocks installs, use [the no-terminal route](#no-terminal-or-locked-down-device) for steps 1 to 3.
-3. **Agent tooling**: is the `sinch` CLI on the PATH (`sinch --version`), are the Sinch skills or a Sinch plugin already installed, and is a Sinch docs connector or MCP server configured? It may have any name, for example `sinch-docs` or "Sinch Build Docs"; check whether it is connected or only installed.
+3. **Agent tooling**: is the `sinch` CLI on the PATH (`sinch --version`), are the Sinch skills or a Sinch plugin already installed, and is a Sinch docs connector or MCP server configured? It may have any name, for example `sinch-docs` or "Sinch Build Docs"; check whether it is connected or only installed. In a chat app, also search its connector directory if you have a tool for that: Claude lists **Sinch Build Docs** there, and a connector the user has not connected does not show among your tools.
 4. **Credentials**: are `SINCH_PROJECT_ID`, `SINCH_KEY_ID`, and `SINCH_KEY_SECRET` already set (check presence only, never print values), or does `sinch auth status` report a login? If so, the user has an account and a key; skip to step 6.
 5. **Goal**: did the user already say what they want to build? If not, ask at step 7.
 
@@ -99,7 +99,7 @@ Do not ask whether the user has a Sinch account until step 4. Steps 1 to 3 need 
 
 ### Host steps
 
-Once you know the host, read its file before step 1. It says which Sinch plugin exists for that host and what it bundles, how to install it and at what scope, and where the access key goes at step 5. Where it differs from the generic steps below, the host file wins.
+Once you know the host, read its file before step 1. The files sit next to this skill, in `references/hosts/`. If you read this skill from a URL, fetch the host file from the same place: replace `SKILL.md` at the end of the URL with `references/hosts/<file>`, and do the same for `chat-apps.md`. If you cannot read the host file, say so in one line and follow the generic steps; do not fill its steps in from memory. It says which Sinch plugin exists for that host and what it bundles, how to install it and at what scope, and where the access key goes at step 5. Where it differs from the generic steps below, the host file wins.
 
 | Host | File |
 |------|------|
