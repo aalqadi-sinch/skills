@@ -24,7 +24,7 @@ It is product-neutral: it does not pick SMS, Voice, Email or any other product f
 
 ## Agent Instructions
 
-> **Policy gate `sinch-shared-policy@5` (`sha256:4864cf0fa8d6`):** The policy digest below is binding as written. Before implementation or live execution, read [the full shared Sinch policy](references/shared-policy.md) once per conversation — skip it if this exact ID/version/fingerprint is already loaded; read it if the version is newer or the fingerprint differs. This skill's canonical operation routes live in its Agent Instructions and Links sections.
+> **Policy gate `sinch-shared-policy@6` (`sha256:a2cf0d1c4430`):** The policy digest below is binding as written. Before implementation or live execution, read [the full shared Sinch policy](references/shared-policy.md) once per conversation — skip it if this exact ID/version/fingerprint is already loaded; read it if the version is newer or the fingerprint differs. This skill's canonical operation routes live in its Agent Instructions and Links sections.
 
 <!-- sinch-policy-digest: start (generated; edit docs/SINCH_SHARED_POLICY.md and run scripts/sync_sinch_skill_references.py) -->
 **Sinch policy digest (binding):**
@@ -34,7 +34,7 @@ It is product-neutral: it does not pick SMS, Voice, Email or any other product f
 3. Code-generation approval is not execution approval. Classify every operation (read-only / reversible / billable / destructive) and obtain explicit approval before billable or destructive calls.
 4. Tier B facts — endpoint paths, methods, field names, enums, limits, webhook payloads, signature algorithms, SDK signatures — require fetching the exact canonical document in the current session before use.
 5. Bundled scripts, references, and examples are Tier C: illustrations, never schema authority. Never promote example values to production defaults.
-6. If a route is unresolved or a canonical fetch fails, climb the resolution ladder in order — re-search already-fetched documents (raw, not summarized), consult https://developers.sinch.com/llms.txt, follow first-party links, retry once — before failing closed. Never pattern-guess a documentation URL; never substitute memory, search snippets, or bundled files.
+6. If a route is unresolved or a canonical fetch fails, climb the resolution ladder in order — re-search already-fetched documents (raw, not summarized), consult https://developers.sinch.com/llms.txt, follow first-party links, retry once — before failing closed. Never pattern-guess a documentation URL. Base every fact on a fetched canonical document, not on recall, search snippets, or bundled files.
 7. Keep an evidence ledger mapping each fetched source to the fields and claims it authorized.
 8. Bound all polling and retries (backoff, jitter, hard cap); check state before retrying billable or destructive operations; report a timeout as unknown, not failed.
 9. Report verification levels separately (lint → unit → mock contract → sandbox → live → end-to-end); an HTTP 2xx does not prove delivery. State the levels not performed.
@@ -58,7 +58,7 @@ People would rather pick an option or fill in a field than read a wall of text. 
 | 1 | Install the Sinch CLI? Yes / No |
 | 2 | How to add Sinch skills: Sinch CLI / My skills manager (skills.sh, Tessl, …) / Plugin / Skip (only show the routes that apply) |
 | 4 | Do you have a Sinch account? Yes / No / I want to try Sinch first / Not sure |
-| 5 | Where to store the access key: Sinch CLI / Environment variables (only show the routes that apply) |
+| 5 | What will call Sinch: The Sinch CLI / Code I'm building / Both (sets where the key goes) |
 | 5 | Confirm when done: "I've created the key" / "I need help" |
 | 7 | What do you want to build first? SMS / WhatsApp or RCS / Voice / Verification / Email / Try it step by step / Not sure |
 
@@ -194,15 +194,17 @@ If `sinch-onboarding` is not installed, say so, then cover sign-up here: Sinch a
 
 Ask the user to open https://dashboard.sinch.com/settings/access-keys and create an access key. They will get a **Project ID**, a **Key ID**, and a **Key Secret**. The Key Secret is shown only once; if they lose it, they create a new key.
 
-Keep the Key Secret out of chat. Have the user type the values in themselves, in one of these places:
+Keep the Key Secret out of chat. Have the user type the values in themselves. Where they go depends on what will call Sinch, and many users need both:
 
-**With the CLI from step 1** (preferred; the secret goes into the OS keychain). Ask the user to run this in their own terminal; it prompts for the three values:
+**For the Sinch CLI and the agent's own terminal commands.** With the CLI from step 1, ask the user to run this in their own terminal; it prompts for the three values and keeps the secret in the OS keychain:
 
 ```bash
 sinch auth login
 ```
 
-**Without the CLI: environment variables** (for code and curl). Have the user add these to a `.env` file that is git-ignored, or export them in their own terminal:
+The keychain is only for the CLI. Code the user builds cannot read it.
+
+**For code the user builds, and for curl.** The app reads the key from its environment. Have the user add these to a `.env` file that is git-ignored, or export them in their own terminal; when the app is deployed, use the host's secret store instead:
 
 ```bash
 export SINCH_PROJECT_ID="your-project-id"
@@ -269,11 +271,11 @@ The user pasted a short prompt that points at this skill and may name a goal ("a
 
 ### Existing user setting up a new agent
 
-The user already has an account and keys. Do steps 1 to 3 for the new agent, answer yes at step 4, reuse their existing key at step 5 (or run `sinch auth login` if the CLI is new), verify at step 6, then go to step 7.
+The user already has an account and keys. Do steps 1 to 3 for the new agent, answer yes at step 4, reuse their existing key at step 5 (run `sinch auth login` if the CLI is new, and set the environment variables if they will build code), verify at step 6, then go to step 7.
 
 ### Non-developer user
 
-Install the CLI at step 1 and use `sinch auth login` at step 5, since it keeps secrets out of files. Keep each reply to what happened and the next action. Do not show JSON or code unless they ask.
+Install the CLI at step 1 and use `sinch auth login` at step 5, since it keeps secrets out of files. If they then build an app, set up its environment variables together with them. Keep each reply to what happened and the next action. Do not show JSON or code unless they ask.
 
 ## Gotchas and Best Practices
 

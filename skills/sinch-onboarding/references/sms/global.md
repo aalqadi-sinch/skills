@@ -35,7 +35,7 @@ Owner: `sinch-sms`. For each entry in `DESTINATION_COUNTRIES`:
 
 ## Phase 8 — Get numbers when needed and go live (billable)
 
-1. For each country that needs a number, search (read-only), ask **Pick a number** with each option's monthly cost, then **Before any paid call**, then rent it. Some countries require KYC documents; use `sinch-number-order-api` for those. Owner: `sinch-numbers-api`.
+1. For each country that needs a number, search (read-only), ask **Pick a number** with each option's monthly cost, then **Before any paid call**, then rent it. Some countries require KYC documents; use `sinch-number-order-api` for those. Before collecting them, tell the user the documents (such as business registration or ID) are sent to Sinch and the number's regulator or carrier for review, and handle them as sensitive: upload them only through the API or dashboard, and never paste them into chat, logs, or the repository. Owner: `sinch-numbers-api`.
 2. Resolve `SERVICE_PLAN_ID`, assign each number to the service plan, and make each sender available to the app. Read each resource back to confirm.
 3. Keep a per-country sender map in the one config place, and set the `SMS_SENDER` channel property from it on every send ([SMS properties](https://developers.sinch.com/docs/conversation/channel-support/sms/properties.md)).
 4. Send one real message per destination country (**Before any paid call** each, which names what is sent: the recipient number and the text go to Sinch and the carriers), only to a number the user owns or whose owner agreed to receive the test, and confirm each delivery receipt. A sender that works in one country may be replaced, filtered, or blocked in another.

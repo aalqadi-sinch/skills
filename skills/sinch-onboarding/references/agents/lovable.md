@@ -42,7 +42,7 @@ Check, in order: the launcher prompt, the chat history, the app's config. Asking
 - After each answer, verify it (check secret storage, call the API, read the messages table). If the check fails, say what you found in plain words and ask again.
 - If you have no question tool, fall back to a short numbered list of the same options and ask for the number.
 - Never offer an option or free-text field that invites the user to paste a secret: the card's free-text box lands in the chat. For keys, always open the secret storage form.
-- Do not ask the user to run terminal commands.
+- Keep everything inside Lovable; the user never needs a terminal.
 - Keep replies short: what happened, then a question card. Do not show raw code or JSON unless asked.
 - Before setting something up, say what it unlocks ("Once I set this up, you'll be able to test ___"). After, say what to try now ("That's set up — try it by ___").
 
