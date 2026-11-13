@@ -48,6 +48,8 @@ Open with "At the end, you'll be able to:" and two or three bullets of what the 
 
 Settle the account first, then route every request through three choices, in order: product, region, then agent. Then load `references/inputs.md`, the guide, and the entry file, and follow the entry file from top to bottom.
 
+**Links must be clickable.** Write every URL in full with its scheme (`https://dashboard.sinch.com/signup`, never a bare `dashboard.sinch.com/signup`), as a markdown link where the client renders markdown. Put links in the message text, not only inside a question or option label, since question forms often render plain text.
+
 ### 0. Account
 
 Decide whether the user has a Sinch account before anything else:

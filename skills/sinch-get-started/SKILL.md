@@ -23,6 +23,7 @@ These apply in every app, including chat apps such as ChatGPT. This skill is a p
 4. Skip a later step only when the detection shows it is done or a host file says to skip it, and skip it silently.
 5. Host files add to these steps; they never replace Step 0 or change the order.
 6. **Every question is a form.** Ask each question, including "Continue" | "Not now", with your structured question tool, so the user clicks an answer instead of typing one. In Claude Code that is `AskUserQuestion`; if it is deferred, load it first (ToolSearch `select:AskUserQuestion`) before your first reply. Never end a message with "Reply Continue", "Reply X when done", or a bolded inline choice such as "**Continue** | **Not now**". Only when you have searched for a question tool and your client has none, ask in one short line for a specific reply word.
+7. **Every link must be clickable.** Write each URL in full with its scheme (`https://dashboard.sinch.com/signup`), never a bare `dashboard.sinch.com/signup`, and as a markdown link where the client renders markdown, such as `[Sinch sign-up](https://dashboard.sinch.com/signup)`. Put links in the message text, not only inside a question or option label, because question forms often render plain text. Never describe a destination without linking it ("open the dashboard" needs the URL).
 
 ## Overview
 
