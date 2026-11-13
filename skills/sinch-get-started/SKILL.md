@@ -48,25 +48,28 @@ Apply the shared evidence tiers. Account creation, sign-up screens, and dashboar
 
 Your first reply is this message and nothing else. Send it before you run any command, read any other file, check the workspace, or start a setup step, and send it even if you expect everything to be set up already. Then stop and wait for the user's answer.
 
-In three or four short lines, say:
+Lead with what the user will be able to do, not with what gets installed. Say, in this order:
 
-1. **The purpose**, naming the app you are running in: connect it to Sinch so it can help them build with Sinch.
-2. **What they will have at the end**:
-   - The app knows Sinch: it can look up the Sinch docs and follows Sinch's own guides when it writes code.
-   - A Sinch account with an access key stored safely and checked to work. If they have no account yet, sign-up is part of it.
-   - A first result: the goal they named, or else a choice of what to build first, such as a guided first test text to their own phone on a free trial.
-3. **What it asks of them**: a few minutes, signing in or signing up in their browser, and creating a key. You will check what is already set up and skip it. Nothing is sent or charged without asking them first.
+1. **One line of purpose**, naming the app you are running in: this connects it to Sinch.
+2. **"At the end of setup, you'll be able to:"** followed by three or four bullets, each something the user can then ask you to do, in their words, not setup items:
+   - Test a Sinch product, for example send a first text to their own phone, step by step on a free trial.
+   - Be ready to build apps that use Sinch APIs, with you writing the code from Sinch's official docs and guides.
+   - Ask you anything about Sinch products and APIs, answered from the official docs.
+   - If they named a goal, put it first in their own words, for example "Add SMS appointment reminders to your app".
+
+   Keep the bullets at this level. Do not list product features such as batch sending or delivery reports here; which API to use is decided later, by the product skill.
+3. **One line on what it takes**: a few minutes, signing in or signing up in their browser, and creating a key; you will check what is already set up and skip it; nothing is sent or charged without asking them first.
 
 End with one question: "Continue" | "Not now". Use the question tool if you have one; otherwise ask them to reply "continue". On "Not now", stop and say they can come back any time. On "Continue", start the detection below.
 
-Do not promise anything this flow does not deliver, such as a live sender or a finished app; those come later, in the product skill or `sinch-onboarding`. For example:
+Only list what this flow and the skills it hands off to really deliver. Do not promise a live sender, a finished app, or a product that has no Sinch skill. For example:
 
-> I'll connect Claude to Sinch so I can help you build with it. By the end you'll have:
-> - Claude set up to look up the Sinch docs and follow Sinch's guides
-> - Your Sinch account connected with a working access key
-> - A first test text sent to your own phone, step by step on a free trial
+> I'll connect Claude to Sinch. At the end of setup, you'll be able to:
+> - Test a Sinch product, like sending your first text to your own phone on a free trial
+> - Be ready to build apps that use Sinch APIs, with me writing the code from Sinch's official docs
+> - Ask me anything about Sinch's products and APIs, answered from the official docs
 >
-> It takes a few minutes. I'll check what's already set up and skip it. You'll sign in once and create a key, and I'll ask before anything is sent or charged.
+> It takes a few minutes: you'll sign in once and create a key. I'll check what's already set up and skip it, and I'll ask before anything is sent or charged.
 >
 > Ready to start? **Continue** | **Not now**
 
