@@ -22,6 +22,7 @@ These apply in every app, including chat apps such as ChatGPT. This skill is a p
 3. Wait for the answer. On "Not now", stop. On "Continue", go on in the documented order.
 4. Skip a later step only when the detection shows it is done or a host file says to skip it, and skip it silently.
 5. Host files add to these steps; they never replace Step 0 or change the order.
+6. **Every question is a form.** Ask each question, including "Continue" | "Not now", with your structured question tool, so the user clicks an answer instead of typing one. In Claude Code that is `AskUserQuestion`; if it is deferred, load it first (ToolSearch `select:AskUserQuestion`) before your first reply. Never end a message with "Reply Continue", "Reply X when done", or a bolded inline choice such as "**Continue** | **Not now**". Only when you have searched for a question tool and your client has none, ask in one short line for a specific reply word.
 
 ## Overview
 
@@ -72,7 +73,7 @@ Lead with what the user will be able to do, not with what gets installed. Say, i
 
 Write the purpose line, the bullet list, and the "what it takes" line as normal message text, formatted as in the example below, with each item on its own bullet line. Never fold them into one paragraph, and never put them inside a question tool's question: most question tools show plain text, so the bullets are lost.
 
-Then end with one question: "Continue" | "Not now". Use the question tool if you have one, with only "Ready to start?" as its question text; otherwise ask them to reply "continue". On "Not now", stop and say they can come back any time. On "Continue", start the detection below.
+Then end with one question: "Continue" | "Not now". Ask it as a form with the question tool (rule 6), with only "Ready to start?" as its question text and "Continue" and "Not now" as the two options; the bullets stay in the message above it. Only when your client has no question tool, ask them to reply "continue". On "Not now", stop and say they can come back any time. On "Continue", start the detection below.
 
 Only list what this flow and the skills it hands off to really deliver. Do not promise a live sender, a finished app, or a product that has no Sinch skill. For example:
 
@@ -83,7 +84,7 @@ Only list what this flow and the skills it hands off to really deliver. Do not p
 >
 > It takes a few minutes: you'll sign in once and create a key. I'll check what's already set up and skip it, and I'll ask before anything is sent or charged.
 >
-> Ready to start? **Continue** | **Not now**
+> *(then, as a form from the question tool:)* "Ready to start?" with the options **Continue** and **Not now**
 
 ### How this skill works
 
@@ -95,7 +96,7 @@ Show what to do, not what cannot be done. The detection and routing in this skil
 
 - Do not explain which routes you ruled out or why (for example that the CLI cannot be installed, or that your terminal is a sandbox). Go straight to the steps that work for this user.
 - Do not mention this skill or quote its rules ("the skill says…"). Speak as yourself.
-- Present setup as a short list of actions with their links or values, then one question. For example: "Two quick steps to connect me to Sinch: 1. Add the Sinch Docs connector: `https://developers.sinch.com/mcp`. 2. Add the Sinch skills from `github.com/sinch/skills`." Then ask "Done" | "Skip for now" | "Help me find the setting".
+- Present setup as a short list of actions with their links or values, then one question, asked as a form. For example: "Two quick steps to connect me to Sinch: 1. Add the Sinch Docs connector: `https://developers.sinch.com/mcp`. 2. Add the Sinch skills from `github.com/sinch/skills`." Then ask it as a form with the options "Done", "Skip for now" and "Help me find the setting".
 - Add a caveat (an admin approval, a restart) only where the user will hit it, in a few words.
 - Name the app you are running in when you give app steps, for example "In Claude, open Customize → Connectors". Never write "your agent" or "the app's settings" and leave the user to work out which app and where.
 

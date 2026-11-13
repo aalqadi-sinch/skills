@@ -63,7 +63,8 @@ Check, in order: the launcher prompt, this conversation, the workspace. Asking f
 - Put the full instructions for what the user must do inside the question, then the checkpoint's options from the product guide. Adapt the wording; keep the options. Always include "I'm stuck / need help with this step".
 - One question at a time, so you can check each answer before the next.
 - After each answer, verify it (read the file, call the API, read the webhook log). If the check fails, say what you found and ask again.
-- If your client has no question tool, ask in one short line for a specific reply word instead.
+- Every question is a form, with no exceptions: "Continue" | "Not now", "Done" | "Skip", and scope choices too. `AskUserQuestion` may be deferred; load it with ToolSearch (`select:AskUserQuestion`) before your first reply.
+- Only if you searched and your client has no question tool, ask in one short line for a specific reply word instead.
 - Never offer an option or free-text field that invites the user to paste a secret; free text lands in the transcript.
 - Keep replies short: what happened, then the next question. Speak plainly; explain a technical term in the same sentence the first time you use it, unless the user is clearly technical.
 
